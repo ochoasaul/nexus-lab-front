@@ -2,7 +2,7 @@ import Button from '../../components/Button/Button'
 import { Panel } from '../../components/dashboard/Panel'
 import { StatusBadge } from '../../components/dashboard/StatusBadge'
 import { ROLE_DETAILS, type RoleKey } from '../../config'
-import { useDashboard } from './useDashboard'
+import { useDashboard } from '../Dashboard/useDashboard'
 
 const formatRoleLabel = (role: string) =>
   ROLE_DETAILS[role as RoleKey]?.label ?? role.charAt(0).toUpperCase() + role.slice(1)

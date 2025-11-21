@@ -4,7 +4,7 @@ import { AssignIcon } from '../../components/icons/Icons'
 import { Panel } from '../../components/dashboard/Panel'
 import { ROLE_DETAILS, type RoleKey } from '../../config'
 import type { LabUserRole } from '../../mocks/labs'
-import { useDashboard } from './useDashboard'
+import { useDashboard } from '../Dashboard/useDashboard'
 
 const allowedAssignRolesFor = (currentRole: RoleKey): LabUserRole[] => {
   if (currentRole === 'super_admin') return ['encargado', 'administrativo', 'auxiliar', 'docente', 'alumno']

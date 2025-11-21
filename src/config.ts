@@ -15,7 +15,7 @@ export const ROUTES = {
   tasks: '/tasks',
 } as const
 
-export type RoleKey = 'super_admin' | 'encargado' | 'administrativo' | 'auxiliar'
+export type RoleKey = 'auxiliar' | 'encargado' | 'super_admin' | 'administrativo'
 
 export const ROLE_DETAILS: Record<
   RoleKey,

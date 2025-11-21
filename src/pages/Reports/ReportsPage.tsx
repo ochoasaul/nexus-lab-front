@@ -1,7 +1,7 @@
 import Button from '../../components/Button/Button'
 import { Panel } from '../../components/dashboard/Panel'
 import { StatusBadge } from '../../components/dashboard/StatusBadge'
-import { useDashboard } from './useDashboard'
+import { useDashboard } from '../Dashboard/useDashboard'
 
 function ReportsPage() {
   const { user, dataset, simulateReservation, simulateLostObject } = useDashboard()

@@ -1,6 +1,6 @@
 import Button from '../../components/Button/Button'
 import { Panel } from '../../components/dashboard/Panel'
-import { useDashboard } from './useDashboard'
+import { useDashboard } from '../Dashboard/useDashboard'
 
 function SchedulesPage() {
   const { user, dataset, simulateSchedule } = useDashboard()

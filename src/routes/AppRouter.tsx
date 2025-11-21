@@ -8,11 +8,11 @@ import { useAuth } from '../hooks/useAuth'
 
 // Lazy-loaded dashboard pages
 const OverviewPage = lazy(() => import('../pages/Dashboard/OverviewPage'))
-const InventoryPage = lazy(() => import('../pages/Dashboard/InventoryPage'))
-const UsersPage = lazy(() => import('../pages/Dashboard/UsersPage'))
-const ReportsPage = lazy(() => import('../pages/Dashboard/ReportsPage'))
-const SchedulesPage = lazy(() => import('../pages/Dashboard/SchedulesPage'))
-const TasksPage = lazy(() => import('../pages/Dashboard/TasksPage'))
+const InventoryPage = lazy(() => import('../pages/Inventory/InventoryPage'))
+const UsersPage = lazy(() => import('../pages/Users/UsersPage'))
+const ReportsPage = lazy(() => import('../pages/Reports/ReportsPage'))
+const SchedulesPage = lazy(() => import('../pages/Schedules/SchedulesPage'))
+const TasksPage = lazy(() => import('../pages/Tasks/TasksPage'))
 
 function PrivateRoute({ children }: { children: ReactElement }) {
   const { isAuthenticated } = useAuth()
