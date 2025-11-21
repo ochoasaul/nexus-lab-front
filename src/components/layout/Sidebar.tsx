@@ -1,22 +1,20 @@
-import { Link, useLocation, useSearchParams } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import Button from '../Button/Button'
 import { HomeIcon, InventoryIcon, UsersIcon, ReportIcon, CalendarIcon, LogoutIcon } from '../icons/Icons'
 
 const navItems = [
-  { id: 'overview', label: 'Panel principal', href: '/?view=overview', Icon: HomeIcon },
-  { id: 'inventory', label: 'Inventario', href: '/dashboard?view=inventory', Icon: InventoryIcon },
-  { id: 'users', label: 'Usuarios', href: '/dashboard?view=users', Icon: UsersIcon },
-  { id: 'reports', label: 'Reportes', href: '/dashboard?view=reports', Icon: ReportIcon },
-  { id: 'schedules', label: 'Horarios', href: '/dashboard?view=schedules', Icon: CalendarIcon },
-  { id: 'tasks', label: 'Tareas', href: '/dashboard?view=tasks', Icon: ReportIcon },
+  { id: 'overview', label: 'Panel principal', href: '/dashboard', Icon: HomeIcon },
+  { id: 'inventory', label: 'Inventario', href: '/inventory', Icon: InventoryIcon },
+  { id: 'users', label: 'Usuarios', href: '/users', Icon: UsersIcon },
+  { id: 'reports', label: 'Reportes', href: '/reports', Icon: ReportIcon },
+  { id: 'schedules', label: 'Horarios', href: '/schedules', Icon: CalendarIcon },
+  { id: 'tasks', label: 'Tareas', href: '/tasks', Icon: ReportIcon },
 ]
 
 export function Sidebar() {
   const location = useLocation()
-  const [searchParams] = useSearchParams()
   const { user, logout } = useAuth()
-  const view = (searchParams.get('view') ?? 'overview').split('?')[0]
 
   return (
     <aside className="sidebar">
@@ -26,7 +24,7 @@ export function Sidebar() {
       </Link>
       <div className="mt-8 flex-1 space-y-1">
         {navItems.map((item) => {
-          const isActive = view === item.id
+          const isActive = location.pathname === item.href || (item.id === 'overview' && location.pathname === '/')
           const Icon = (item as any).Icon as React.ComponentType<any>
           return (
             <Link

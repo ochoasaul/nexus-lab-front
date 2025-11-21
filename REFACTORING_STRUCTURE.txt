@@ -1,0 +1,168 @@
+📁 Estructura de Carpetas - Dashboard Refactorizado
+═══════════════════════════════════════════════════════
+
+src/pages/Dashboard/
+├── 📄 OverviewPage.tsx          ← Panel principal
+├── 📄 InventoryPage.tsx         ← Gestión de inventario
+├── 📄 UsersPage.tsx             ← Gestión de usuarios y roles
+├── 📄 ReportsPage.tsx           ← Reportes y registros
+├── 📄 SchedulesPage.tsx         ← Horarios y docentes
+├── 📄 TasksPage.tsx             ← Gestión de tareas
+├── 📄 useDashboard.ts           ← Hook compartido (SIN CAMBIOS)
+├── 📄 DashboardPage.tsx         ← Archivo original (DEPRECADO ⚠️)
+└── 📄 index.ts                  ← Exportaciones barril
+
+src/components/dashboard/
+├── 📄 Panel.tsx                 ← (existente)
+├── 📄 StatusBadge.tsx           ← (existente)
+├── 📄 SummaryCard.tsx           ← (existente)
+└── 📄 QuickActions.tsx          ← NUEVO ✨
+
+src/routes/
+└── 📄 AppRouter.tsx             ← Actualizado con nuevas rutas
+
+src/components/layout/
+└── 📄 Sidebar.tsx               ← Actualizado para nuevas rutas
+
+
+🗺️  Mapa de Rutas
+═════════════════════════════════════════════════════════
+
+AppRouter
+│
+└─ BrowserRouter
+   │
+   ├─ Route /login
+   │  └─ AuthLayout
+   │     └─ LoginPage
+   │
+   ├─ Route /
+   │  └─ MainLayout
+   │     ├─ /                          → OverviewPage
+   │     ├─ /dashboard                 → OverviewPage
+   │     ├─ /dashboard/inventory       → InventoryPage
+   │     ├─ /dashboard/users           → UsersPage
+   │     ├─ /dashboard/reports         → ReportsPage
+   │     ├─ /dashboard/schedules       → SchedulesPage
+   │     └─ /dashboard/tasks           → TasksPage
+   │
+   └─ Route * (Wildcard)
+      └─ Navigate to /
+
+
+🔄 Flujo de Datos
+═════════════════════════════════════════════════════════
+
+Sidebar (Navegación)
+    ↓
+useLocation() detecta cambio de ruta
+    ↓
+URL cambia: /dashboard/inventory
+    ↓
+AppRouter renderiza: <InventoryPage />
+    ↓
+InventoryPage usa: useDashboard()
+    ↓
+Renderiza el contenido con datos del hook
+
+
+📊 Comparación Antes / Después
+═════════════════════════════════════════════════════════
+
+ANTES:
+  ├─ 1 archivo gigante: DashboardPage.tsx (584 líneas)
+  ├─ Switch statement con 6 casos
+  ├─ useSearchParams + query params (?view=inventory)
+  └─ Todo renderizado condicional dentro de renderSection()
+
+DESPUÉS:
+  ├─ 6 archivos pequeños (~100-150 líneas cada uno)
+  ├─ Cada página es independiente
+  ├─ Rutas semánticas (/dashboard/inventory)
+  ├─ Navegación más limpia y mantenible
+  └─ Mejor para code-splitting y lazy loading
+
+
+🎯 Ventajas de la Refactorización
+═════════════════════════════════════════════════════════
+
+✅ Separación de Responsabilidades
+   - Cada página tiene una única responsabilidad
+
+✅ Código Más Legible
+   - Archivos más cortos y enfocados
+
+✅ Mejor para SEO/Analytics
+   - URLs semánticas en lugar de query params
+
+✅ Facilita Testing
+   - Cada página se puede testear independientemente
+
+✅ Escalabilidad
+   - Fácil agregar nuevas páginas
+
+✅ Performance
+   - Posibilidad de lazy loading en futuro
+
+✅ Mantenibilidad
+   - Cambios en una vista no afectan otras
+
+
+🚀 Próximas Mejoras Sugeridas
+═════════════════════════════════════════════════════════
+
+1. Lazy Loading (React.lazy + Suspense)
+   - Cargar páginas bajo demanda
+
+2. Rutas Dinámicas
+   - /dashboard/:labId/inventory
+   - Parámetros en URLs
+
+3. Breadcrumbs
+   - Navegación contextual
+
+4. Transiciones
+   - Animaciones al cambiar de página
+
+5. Error Boundaries
+   - Manejo de errores por página
+
+6. Unit Tests
+   - Tests para cada página
+
+7. Sitemap Dinámico
+   - Para SEO
+
+
+📝 Archivos Creados
+═════════════════════════════════════════════════════════
+
+Nuevos archivos:
+  ✨ OverviewPage.tsx
+  ✨ InventoryPage.tsx
+  ✨ UsersPage.tsx
+  ✨ ReportsPage.tsx
+  ✨ SchedulesPage.tsx
+  ✨ TasksPage.tsx
+  ✨ QuickActions.tsx
+  ✨ Dashboard/index.ts
+  ✨ REFACTORING_NOTES.md (este documento)
+
+Archivos Modificados:
+  🔧 AppRouter.tsx
+  🔧 Sidebar.tsx
+  🔧 config.ts
+  🔧 OverviewPage.tsx (integración de QuickActions)
+
+Archivos Deprecados (opcional eliminar):
+  ⚠️ DashboardPage.tsx (ya no se usa)
+
+
+✅ Estado de Compilación
+═════════════════════════════════════════════════════════
+
+Build: ✓ EXITOSO
+  - 71 módulos transformados
+  - 272.69 kB (gzip: 83.72 kB)
+  - 0 errores TypeScript
+  - 0 advertencias

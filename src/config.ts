@@ -8,6 +8,11 @@ export const ROUTES = {
   home: '/',
   login: '/login',
   dashboard: '/dashboard',
+  inventory: '/inventory',
+  users: '/users',
+  reports: '/reports',
+  schedules: '/schedules',
+  tasks: '/tasks',
 } as const
 
 export type RoleKey = 'super_admin' | 'encargado' | 'administrativo' | 'auxiliar'
