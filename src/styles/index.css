@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #fef2f2 0%, #ffffff 50%, #f3f4f6 100%);
+    background-attachment: fixed;
+    color: theme('colors.charcoal.900', '#000000');
+    letter-spacing: 0.01em;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+.panel-shell {
+  border-radius: 24px;
+  border: 1px solid theme('colors.charcoal.200', '#e5e5e5');
+  padding: 24px;
+  box-shadow: 0 6px 24px rgba(195, 0, 47, 0.08);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+@layer components {
+  /* Sidebar container: slightly elevated, rounded on the right, subtle gradient */
+  .sidebar {
+    /* Hidden on small screens, fixed/full height on large screens. Overflow-y ensures content scrolls inside sidebar. */
+    @apply hidden min-h-screen w-[260px] flex-col border-r border-charcoal-100 bg-white/80 px-5 py-6 lg:flex lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto rounded-r-2xl shadow-sm;
+  }
+
+  .brand {
+    @apply text-xs font-semibold uppercase tracking-[0.25em] text-primary-600;
+  }
+
+  .brand-sub {
+    @apply block text-[0.65rem] text-charcoal-500 font-normal mt-1;
+  }
+
+  .nav-item {
+    @apply block rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-150;
+  }
+
+  .nav-item:hover {
+    @apply bg-charcoal-50 text-charcoal-900;
+  }
+
+  .nav-item-active {
+    @apply bg-primary-50 text-primary-600 shadow-inner;
+  }
+
+  .session-card {
+    @apply mt-6 rounded-2xl border border-charcoal-100 bg-charcoal-50 p-4 text-xs text-charcoal-500;
+  }
+
+  .session-title {
+    @apply font-semibold text-charcoal-800;
+  }
+}
