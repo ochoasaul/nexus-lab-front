@@ -11,10 +11,10 @@ Proyecto base en React con Vite pensado para comenzar rápidamente un dashboard 
 - ESLint con las reglas recomendadas de React Hooks
 
 ## Scripts
-- `pnpm dev` – modo desarrollo con HMR
-- `pnpm build` – compilación para producción
-- `pnpm preview` – sirve la build ya compilada
-- `pnpm lint` – ejecuta ESLint sobre todo el proyecto
+- `npm run dev` – modo desarrollo con HMR
+- `npm run build` – compilación para producción
+- `npm run preview` – sirve la build ya compilada
+- `npm run lint` – ejecuta ESLint sobre todo el proyecto
 
 ## Estructura de carpetas
 ```
@@ -78,6 +78,11 @@ VITE_API_URL=https://api.maquetalab.local
 Cambia el valor por la URL real de tu backend.
 
 ## Comenzar
-1. Instala dependencias (`pnpm install`).
+1. Instala dependencias (`npm install`).
 2. Copia o ajusta las variables del archivo `.env`.
-3. Ejecuta `pnpm dev` y abre `http://localhost:5173`.
+3. Ejecuta `npm run dev` y abre `http://localhost:5173`.
+
+## Gestor de paquetes
+Este repositorio ahora usa npm como gestor de paquetes. Se ha eliminado `pnpm-lock.yaml` y `package-lock.json` se generará en tu entorno al ejecutar `npm install`.
+
+Si prefieres usar pnpm, restaura `pnpm-lock.yaml` desde el historial de Git o genera uno nuevo con `pnpm install` y ajusta los comandos anteriores (`pnpm dev`, etc.).
