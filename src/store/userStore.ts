@@ -1,5 +1,10 @@
 import { create } from 'zustand'
-import type { User } from '../services/userService'
+import type { AuthUser } from '../services/authService'
+
+export type User = AuthUser & {
+  role?: string
+  status?: string
+}
 
 type UserState = {
   profile: User | null

@@ -14,7 +14,11 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["vite/client", "react"]
+    "types": ["vite/client", "react"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.*", "src/**/*.spec.*"]

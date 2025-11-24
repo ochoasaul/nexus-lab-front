@@ -60,10 +60,12 @@ const aggregateLabs = (labs: Laboratory[]): AggregatedLab => ({
   lostObjects: labs.flatMap((lab) => lab.lostObjects),
 })
 
-const labsForRole = (role: RoleKey, userLabs: string[]) => {
+// Línea 65 - Actualiza esta función
+const labsForRole = (role: RoleKey, userLabs: string[] = []) => {  // ✅ Agrega = []
   if (role === 'super_admin') return LABS
   return LABS.filter((lab) => userLabs.includes(lab.id))
 }
+
 
 const cloneLab = (lab: Laboratory): Laboratory => JSON.parse(JSON.stringify(lab))
 

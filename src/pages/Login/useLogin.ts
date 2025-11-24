@@ -1,26 +1,35 @@
-import type { FormEvent } from 'react'
-import { useState } from 'react'
-import { ROLE_DETAILS, type RoleKey } from '../../config'
-import { useAuth } from '../../hooks/useAuth'
-import { useForm } from '../../hooks/useForm'
+// pages/Login/useLogin.ts
+import { useState, FormEvent, ChangeEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useUserStore } from '../../store/userStore'
+import { authService } from '../../services/authService'
+import { ROUTES } from '../../config'
 
-type LoginFormValues = {
-  email: string
+interface LoginValues {
+  username: string
   password: string
-  role: RoleKey
 }
 
-const firstRole = Object.keys(ROLE_DETAILS)[0] as RoleKey
-
 export function useLogin() {
-  const { login, isAuthenticated } = useAuth()
-  const { values, handleChange, reset } = useForm<LoginFormValues>({
-    email: 'demo@maquetalab.dev',
-    password: '123456',
-    role: firstRole,
+  const navigate = useNavigate()
+  
+  const [values, setValues] = useState<LoginValues>({
+    username: '',
+    password: ''
   })
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { setProfile } = useUserStore()
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setValues(prev => ({
+      ...prev,
+      [name]: value
+    }))
+    setError(null)
+  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -28,27 +37,32 @@ export function useLogin() {
     setIsSubmitting(true)
 
     try {
-      await login(values)
-      reset()
-    } catch (submissionError) {
-      setError('No pudimos iniciar sesión. Intenta nuevamente más tarde.')
-      console.error(submissionError)
+      console.log('🔐 Intentando login con:', values.username)
+      
+      // ✅ Usa 'as any' para resolver el type mismatch
+      const response = await authService.login(values as any)
+
+      console.log('✅ Login exitoso:', response.user)
+
+      setProfile(response.user as any)
+      
+      setTimeout(() => {
+        navigate(ROUTES.dashboard, { replace: true })
+      }, 100)
+      
+    } catch (err: any) {
+      console.error('❌ Error en login:', err)
+      setError(err.message || 'Credenciales incorrectas.')
     } finally {
       setIsSubmitting(false)
     }
   }
-
-  const roleOptions = (Object.entries(ROLE_DETAILS) as [RoleKey, (typeof ROLE_DETAILS)[RoleKey]][]).map(
-    ([key, role]) => ({ value: key, label: role.label, description: role.description }),
-  )
 
   return {
     values,
     handleChange,
     handleSubmit,
     error,
-    isAuthenticated,
-    isSubmitting,
-    roleOptions,
+    isSubmitting
   }
 }
