@@ -1,5 +1,5 @@
 // pages/Login/LoginPage.tsx
-import Button from '../../components/Button/Button'
+import Button from '@/components/ui/Button/Button'
 import { useLogin } from './useLogin'
 
 function LoginPage() {
@@ -36,9 +36,9 @@ function LoginPage() {
               Usuario
               <input
                 className="mt-2 w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-3 text-charcoal-900 placeholder:text-charcoal-400 focus:border-primary-400 focus:outline-none"
-                name="username"
+                name="usuario"
                 type="text"
-                value={values.username}
+                value={values.usuario}
                 onChange={handleChange}
                 placeholder="Ingresa tu usuario"
                 required
@@ -48,9 +48,9 @@ function LoginPage() {
               Contraseña
               <input
                 className="mt-2 w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-3 text-charcoal-900 placeholder:text-charcoal-400 focus:border-primary-400 focus:outline-none"
-                name="password"
+                name="clave"
                 type="password"
-                value={values.password}
+                value={values.clave}
                 onChange={handleChange}
                 placeholder="Ingresa tu contraseña"
                 required

@@ -1,9 +1,11 @@
-import Button from '../../components/Button/Button'
-import { Panel } from '../../components/dashboard/Panel'
-import { useDashboard } from '../Dashboard/useDashboard'
+import { Panel } from '@/components/dashboard/Panel'
+import { useSchedules } from './useSchedules'
+import { MateriasTab } from './MateriasTab'
+import { EntradaSalidaTab } from './EntradaSalidaTab'
+import { QuickActions } from '@/components/dashboard/QuickActions'
 
 function SchedulesPage() {
-  const { user, dataset, simulateSchedule } = useDashboard()
+  const { user, activeTab, setActiveTab } = useSchedules()
 
   if (!user) {
     return (
@@ -14,32 +16,42 @@ function SchedulesPage() {
   }
 
   return (
+    <section className="grid gap-6">
+    <QuickActions />
     <Panel title="Horarios y docentes">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-charcoal-400">Registros dinámicos</p>
-          <h3 className="text-2xl font-semibold text-charcoal-900">Entradas y salidas de docentes</h3>
-          <p className="text-sm text-charcoal-500">
-            Define múltiples horarios por materia y ajusta la duración cuando cambie el plan.
-          </p>
-        </div>
-        <Button label="Agregar horario" variant="secondary" onClick={simulateSchedule} />
+      {/* Tabs */}
+      <div className="mb-6 border-b border-charcoal-200">
+        <nav className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => setActiveTab('materias')}
+            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === 'materias'
+                ? 'border-primary-500 text-primary-700'
+                : 'border-transparent text-charcoal-500 hover:text-charcoal-700'
+            }`}
+          >
+            Materias del mes
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('entrada-salida')}
+            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === 'entrada-salida'
+                ? 'border-primary-500 text-primary-700'
+                : 'border-transparent text-charcoal-500 hover:text-charcoal-700'
+            }`}
+          >
+            Registrar entrada y salida
+          </button>
+        </nav>
       </div>
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {dataset.schedules.map((schedule) => (
-          <article key={schedule.id} className="rounded-2xl border border-charcoal-100 bg-white p-4">
-            <header className="mb-2 flex items-center justify-between">
-              <h4 className="text-lg font-semibold text-charcoal-900">{schedule.subject}</h4>
-              <span className="text-xs text-charcoal-500">{schedule.duration}</span>
-            </header>
-            <p className="text-sm text-charcoal-600">{schedule.teacher}</p>
-            <small className="text-xs text-charcoal-400">
-              {schedule.day} · {schedule.timeRange}
-            </small>
-          </article>
-        ))}
-      </div>
-    </Panel>
+
+      {/* Tab Content */}
+      {activeTab === 'materias' && <MateriasTab />}
+      {activeTab === 'entrada-salida' && <EntradaSalidaTab />}
+      </Panel>
+      </section>
   )
 }
 

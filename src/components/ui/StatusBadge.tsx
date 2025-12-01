@@ -1,3 +1,5 @@
+import React from 'react'
+
 const toneMap: Record<string, string> = {
   operativo: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   mantenimiento: 'border-amber-200 bg-amber-50 text-amber-700',
@@ -8,6 +10,10 @@ const toneMap: Record<string, string> = {
   devuelto: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   aprobada: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   rechazada: 'border-primary-200 bg-primary-50 text-primary-700',
+  // Estados de objetos perdidos
+  Perdido: 'border-red-200 bg-red-50 text-red-700',
+  Porteria: 'border-sky-200 bg-sky-50 text-sky-700',
+  Entregado: 'border-emerald-200 bg-emerald-50 text-emerald-700',
 }
 
 type StatusBadgeProps = {

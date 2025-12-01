@@ -40,7 +40,11 @@
   /* Sidebar container: slightly elevated, rounded on the right, subtle gradient */
   .sidebar {
     /* Hidden on small screens, fixed/full height on large screens. Overflow-y ensures content scrolls inside sidebar. */
-    @apply hidden min-h-screen w-[260px] flex-col border-r border-charcoal-100 bg-white/80 px-5 py-6 lg:flex lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto rounded-r-2xl shadow-sm;
+    @apply fixed lg:sticky top-0 left-0 z-50 min-h-screen w-[260px] flex-col border-r border-charcoal-100 bg-white/95 backdrop-blur-sm px-5 py-6 lg:flex lg:h-screen lg:overflow-y-auto rounded-r-2xl shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out;
+  }
+
+  .mobile-sidebar-open {
+    @apply translate-x-0;
   }
 
   .brand {

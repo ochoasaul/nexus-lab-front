@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ROLE_DETAILS, type RoleKey } from '../../config'
-import { useAuth } from '../../hooks/useAuth'
+import { ROLE_DETAILS, type RoleKey } from '@/config'
+import { useAuth } from '@/hooks/useAuth'
 import {
   LABS,
   type Laboratory,
@@ -10,7 +10,7 @@ import {
   type LabUser,
   type LabUserRole,
   type LostObject,
-} from '../../mocks/labs'
+} from '@/mocks/labs'
 
 const MENU_OPTIONS = [
   { id: 'overview', label: 'Resumen' },
@@ -60,10 +60,9 @@ const aggregateLabs = (labs: Laboratory[]): AggregatedLab => ({
   lostObjects: labs.flatMap((lab) => lab.lostObjects),
 })
 
-// Línea 65 - Actualiza esta función
-const labsForRole = (role: RoleKey, userLabs: string[] = []) => {  // ✅ Agrega = []
-  if (role === 'super_admin') return LABS
-  return LABS.filter((lab) => userLabs.includes(lab.id))
+// Mostrar todos los laboratorios sin restricciones de rol
+const labsForRole = (role: RoleKey, userLabs: string[] = []) => {
+  return LABS
 }
 
 
@@ -71,20 +70,14 @@ const cloneLab = (lab: Laboratory): Laboratory => JSON.parse(JSON.stringify(lab)
 
 const randomId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2))
 
-// Return the list of LabUserRole values that `currentRole` is allowed to assign
+// Sin restricciones de roles - permitir todos los roles
 const allowedAssignRolesFor = (currentRole: RoleKey): LabUserRole[] => {
-  if (currentRole === 'super_admin') return ['encargado', 'administrativo', 'auxiliar', 'docente', 'alumno']
-  if (currentRole === 'encargado') return ['administrativo', 'auxiliar', 'docente', 'alumno']
-  if (currentRole === 'administrativo') return ['administrativo', 'auxiliar', 'docente', 'alumno']
-  return ['docente', 'alumno']
+  return ['encargado', 'administrativo', 'auxiliar', 'docente', 'alumno']
 }
 
-// Return which roles the currentRole can be assigned tasks to
+// Sin restricciones de roles - permitir asignar tareas a cualquier rol
 const allowedTaskAssigneesFor = (currentRole: RoleKey): LabUserRole[] => {
-  if (currentRole === 'super_admin') return ['encargado', 'administrativo', 'auxiliar', 'docente', 'alumno']
-  if (currentRole === 'encargado') return ['administrativo', 'auxiliar']
-  if (currentRole === 'administrativo') return ['auxiliar']
-  return []
+  return ['encargado', 'administrativo', 'auxiliar', 'docente', 'alumno']
 }
 
 export function useDashboard() {
@@ -105,12 +98,8 @@ export function useDashboard() {
     }
     const scopedLabs = labsForRole(user.role, user.labs).map(cloneLab)
     setLabState(scopedLabs)
-    // Default selection: super_admin keeps 'all', other roles default to their first assigned lab
-    if (user.role === 'super_admin') {
-      setSelectedLabId('all')
-    } else {
-      setSelectedLabId(scopedLabs[0]?.id ?? 'all')
-    }
+    // Todos los usuarios ven 'all' por defecto
+    setSelectedLabId('all')
     // Seed some demo tasks for UI preview: pick an administrativo and an auxiliar if present
     const demoLab = scopedLabs[0]
     if (demoLab) {
@@ -262,13 +251,7 @@ export function useDashboard() {
       const labId = resolveActionLabId()
       if (!labId) return
 
-      // Check that the current user is allowed to assign the requested role
       if (!user) return
-      const allowed = allowedAssignRolesFor(user.role)
-      if (!allowed.includes(role)) {
-        logActivity(`No tienes permisos para asignar el rol ${role}.`)
-        return
-      }
 
       mutateLab(labId, (draft) => {
         draft.users.push({
@@ -346,12 +329,6 @@ export function useDashboard() {
       const assignee = dataset.users.find((u) => u.id === assigneeId)
       if (!assignee) {
         logActivity('Usuario no encontrado para asignar tarea.')
-        return
-      }
-
-      const allowed = allowedTaskAssigneesFor(user.role)
-      if (!allowed.includes(assignee.role)) {
-        logActivity(`No tienes permisos para designar tareas a ${assignee.name} (${assignee.role}).`)
         return
       }
 
