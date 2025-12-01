@@ -1,66 +1,127 @@
-import { useState } from 'react'
-import Button from '../../components/Button/Button'
-import { Panel } from '../../components/dashboard/Panel'
-import { StatusBadge } from '../../components/dashboard/StatusBadge'
-import { useDashboard } from '../Dashboard/useDashboard'
-
+import Button from '@/components/ui/Button/Button'
+import { Panel } from '@/components/dashboard/Panel'
+import { CreateInventoryModal } from './components/modals/CreateInventoryModal'
+import { EditInventoryModal } from './components/modals/EditInventoryModal'
+import { useInventoryPage } from './useInventoryPage'
+import { LaboratorioSelector } from './components/LaboratorioSelector'
+import { InventoryList } from './components/InventoryList'
+import { QuickActions } from '@/components/dashboard/QuickActions'
 function InventoryPage() {
-  const { user, selectedLab, dataset, simulateInventoryAudit } = useDashboard()
-  const [inventoryFilter, setInventoryFilter] = useState<'all' | 'hardware' | 'consumible' | 'seguridad'>('all')
+  const {
+    user,
+    isSuperAdmin,
+    laboratorios,
+    isLoadingLabs,
+    selectedLaboratorioId,
+    setSelectedLaboratorioId,
+    selectedLaboratorio,
+    inventory,
+    isLoading,
+    error,
+    laboratorioIdToUse,
+    isCreateModalOpen,
+    setIsCreateModalOpen,
+    isEditModalOpen,
+    selectedInventoryItem,
+    handleCreate,
+    handleUpdate,
+    handleDelete,
+    handleEdit,
+    handleCloseEdit,
+  } = useInventoryPage()
 
-  if (!user || !selectedLab) {
+  if (!user) {
     return (
       <section className="rounded-3xl border border-dashed border-charcoal-200 bg-surface p-12 text-center text-charcoal-500">
-        Selecciona un laboratorio para ver el inventario.
+        Inicia sesión para ver el inventario.
       </section>
     )
   }
 
-  return (
-    <Panel
-      title="Inventario"
-      actions={
-        <Button
-          label="Auditar inventario"
-          variant="secondary"
-          onClick={simulateInventoryAudit}
-        />
-      }
-    >
-      <div className="mt-4 flex gap-2">
-        {(['all', 'hardware', 'consumible', 'seguridad'] as const).map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setInventoryFilter(cat)}
-            className={`rounded-full px-3 py-1 text-sm font-medium transition ${
-              inventoryFilter === cat ? 'bg-primary-50 text-primary-600' : 'bg-charcoal-50 text-charcoal-700'
-            }`}
-          >
-            {cat === 'all' ? 'Todos' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-          </button>
-        ))}
-      </div>
+  if (isSuperAdmin && !selectedLaboratorioId && !isLoadingLabs) {
+    return (
+      <Panel title="Inventario">
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-charcoal-600 mb-4">
+              Selecciona un laboratorio para ver su inventario:
+            </p>
+            <LaboratorioSelector
+              laboratorios={laboratorios}
+              isLoading={isLoadingLabs}
+              onSelect={(id) => setSelectedLaboratorioId(id)}
+            />
+          </div>
+        </div>
+      </Panel>
+    )
+  }
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {dataset.inventory
-          .filter((it) => inventoryFilter === 'all' || it.category === inventoryFilter)
-          .map((item) => (
-            <article key={item.id} className="rounded-2xl border border-charcoal-100 bg-surface p-4">
-              <header className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-charcoal-500">{item.category === 'hardware' ? 'Equipo' : 'Consumible'}</p>
-                  <h4 className="text-lg font-semibold text-charcoal-900">{item.name}</h4>
-                </div>
-                <StatusBadge label={item.status} />
-              </header>
-              <footer className="mt-4 flex gap-4 text-sm text-charcoal-600">
-                <span>Total: {item.quantity}</span>
-                <span>Disponibles: {item.available}</span>
-              </footer>
-            </article>
-          ))}
-      </div>
-    </Panel>
+  return (
+    <>
+      <section className="grid gap-6">
+        <QuickActions />
+        <Panel
+          title="Inventario"
+          actions={
+            <div className="flex gap-2">
+              {isSuperAdmin && selectedLaboratorioId && (
+                <Button
+                  label="Cambiar laboratorio"
+                  variant="ghost"
+                  onClick={() => setSelectedLaboratorioId(undefined)}
+                  className="text-xs"
+                />
+              )}
+              <Button
+                label="Agregar producto"
+                variant="secondary"
+                onClick={() => setIsCreateModalOpen(true)}
+              />
+            </div>
+          }
+        >
+          {isSuperAdmin && selectedLaboratorioId && selectedLaboratorio && (
+            <div className="mb-4 rounded-2xl border border-primary-200 bg-primary-50 p-3">
+              <p className="text-sm text-primary-700">
+                <strong>Laboratorio seleccionado:</strong> {selectedLaboratorio.nombre}
+              </p>
+            </div>
+          )}
+
+          {isLoading && (
+            <p className="text-sm text-charcoal-500 py-8 text-center">Cargando inventario...</p>
+          )}
+
+          {error && (
+            <p className="text-sm text-red-600 py-8 text-center">{error}</p>
+          )}
+
+          {!isLoading && !error && (
+            <InventoryList
+              inventory={inventory}
+              isSuperAdmin={isSuperAdmin}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
+        </Panel>
+
+        <CreateInventoryModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={handleCreate}
+          laboratorioId={laboratorioIdToUse}
+        />
+
+        <EditInventoryModal
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEdit}
+          onSubmit={handleUpdate}
+          inventoryItem={selectedInventoryItem}
+        />
+      </section>
+    </>
   )
 }
 

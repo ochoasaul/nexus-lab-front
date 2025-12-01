@@ -13,6 +13,7 @@ export const ROUTES = {
   reports: '/reports',
   schedules: '/schedules',
   tasks: '/tasks',
+  register: '/register',
 } as const
 
 export type RoleKey = 'auxiliar' | 'encargado' | 'super_admin' | 'administrativo'

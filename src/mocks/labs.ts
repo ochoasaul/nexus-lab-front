@@ -1,4 +1,4 @@
-import type { RoleKey } from '../config'
+import type { RoleKey } from '@/config'
 
 export type LabInventoryItem = {
   id: string

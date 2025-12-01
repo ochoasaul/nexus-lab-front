@@ -1,26 +1,27 @@
 // pages/Login/useLogin.ts
 import { useState, FormEvent, ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useUserStore } from '../../store/userStore'
-import { authService } from '../../services/authService'
-import { ROUTES } from '../../config'
+import { useUserStore } from '@/store/userStore'
+import { useAuth } from '@/hooks/useAuth'
+import { ROUTES } from '@/config'
 
 interface LoginValues {
-  username: string
-  password: string
+  usuario: string
+  clave: string
 }
 
 export function useLogin() {
   const navigate = useNavigate()
   
   const [values, setValues] = useState<LoginValues>({
-    username: '',
-    password: ''
+    usuario: '',
+    clave: ''
   })
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { setProfile } = useUserStore()
+  const { login } = useAuth()
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -37,15 +38,13 @@ export function useLogin() {
     setIsSubmitting(true)
 
     try {
-      console.log('🔐 Intentando login con:', values.username)
-      
-      // ✅ Usa 'as any' para resolver el type mismatch
-      const response = await authService.login(values as any)
+      console.log('🔐 Intentando login con:', values.usuario)
+      const response = await login(values)
 
       console.log('✅ Login exitoso:', response.user)
 
-      setProfile(response.user as any)
-      
+      setProfile(response.user)
+
       setTimeout(() => {
         navigate(ROUTES.dashboard, { replace: true })
       }, 100)

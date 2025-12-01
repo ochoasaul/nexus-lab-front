@@ -1,18 +1,19 @@
 import React, { type ReactElement, Suspense, lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import MainLayout from '../layouts/MainLayout'
-import AuthLayout from '../layouts/AuthLayout'
-import LoginPage from '../pages/Login/LoginPage'
-import { ROUTES } from '../config'
-import { useAuth } from '../hooks/useAuth'
+import MainLayout from '@/layouts/MainLayout'
+import AuthLayout from '@/layouts/AuthLayout'
+import LoginPage from '@/pages/Login/LoginPage'
+import { ROUTES } from '@/config'
+import { useAuth } from '@/hooks/useAuth'
 
 // Lazy-loaded dashboard pages
-const OverviewPage = lazy(() => import('../pages/Dashboard/OverviewPage'))
-const InventoryPage = lazy(() => import('../pages/Inventory/InventoryPage'))
-const UsersPage = lazy(() => import('../pages/Users/UsersPage'))
-const ReportsPage = lazy(() => import('../pages/Reports/ReportsPage'))
-const SchedulesPage = lazy(() => import('../pages/Schedules/SchedulesPage'))
-const TasksPage = lazy(() => import('../pages/Tasks/TasksPage'))
+const OverviewPage = lazy(() => import('@/pages/Dashboard/OverviewPage'))
+const InventoryPage = lazy(() => import('@/pages/Inventory/InventoryPage'))
+const UsersPage = lazy(() => import('@/pages/Users/UsersPage'))
+const ReportsPage = lazy(() => import('@/pages/Reports/ReportsPage'))
+const SchedulesPage = lazy(() => import('@/pages/Schedules/SchedulesPage'))
+const TasksPage = lazy(() => import('@/pages/Tasks/TasksPage'))
+const RegisterPage = lazy(() => import('@/pages/Register/RegisterPage'))
 
 function PrivateRoute({ children }: { children: ReactElement }) {
   const { isAuthenticated } = useAuth()
@@ -37,6 +38,7 @@ export function AppRouter() {
             <Route path={ROUTES.reports} element={<PrivateRoute><ReportsPage /></PrivateRoute>} />
             <Route path={ROUTES.schedules} element={<PrivateRoute><SchedulesPage /></PrivateRoute>} />
             <Route path={ROUTES.tasks} element={<PrivateRoute><TasksPage /></PrivateRoute>} />
+            <Route path={ROUTES.register} element={<PrivateRoute><RegisterPage /></PrivateRoute>} />
           </Route>
 
           <Route element={<AuthLayout />}>
