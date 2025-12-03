@@ -3,10 +3,10 @@ import { lostObjectService } from '@/services/lostObjectService'
 import { useLostObjectsStore } from '@/store/lostObjectsStore'
 
 export function useLostObjects(month?: string) {
-  const { 
-    lostObjects, 
-    setLostObjects, 
-    isLoading: storeIsLoading, 
+  const {
+    lostObjects,
+    setLostObjects,
+    isLoading: storeIsLoading,
     error: storeError,
     setLoading,
     setError,
@@ -20,9 +20,9 @@ export function useLostObjects(month?: string) {
       const data = await lostObjectService.getByLaboratoryAndMonth(month)
       setLostObjects(data)
     } catch (err: any) {
-      const errorMessage = err.message || 'Error al cargar los objetos perdidos'
+      const errorMessage = err.message || 'Error loading lost objects'
       setError(errorMessage)
-      console.error('Error al cargar objetos perdidos:', err)
+      console.error('Error loading lost objects:', err)
     } finally {
       setLoading(false)
     }

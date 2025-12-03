@@ -7,50 +7,50 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 let mockClassroomDetails: ClassroomDetailItem[] = [
   {
     id: 1,
-    aula_id: 1,
-    capacidad_alumnos: 30,
-    num_computadoras: 25,
-    proyector_instalado: true,
-    aire_acondicionado: true,
-    aula: {
+    classroom_id: 1,
+    student_capacity: 30,
+    computer_count: 25,
+    projector_installed: true,
+    air_conditioning: true,
+    classroom: {
       id: 1,
-      nombre: 'Aula 101',
+      name: 'Aula 101',
     },
   },
   {
     id: 2,
-    aula_id: 2,
-    capacidad_alumnos: 40,
-    num_computadoras: 35,
-    proyector_instalado: true,
-    aire_acondicionado: false,
-    aula: {
+    classroom_id: 2,
+    student_capacity: 40,
+    computer_count: 35,
+    projector_installed: true,
+    air_conditioning: false,
+    classroom: {
       id: 2,
-      nombre: 'Aula 102',
+      name: 'Aula 102',
     },
   },
   {
     id: 3,
-    aula_id: 3,
-    capacidad_alumnos: 25,
-    num_computadoras: 20,
-    proyector_instalado: false,
-    aire_acondicionado: true,
-    aula: {
+    classroom_id: 3,
+    student_capacity: 25,
+    computer_count: 20,
+    projector_installed: false,
+    air_conditioning: true,
+    classroom: {
       id: 3,
-      nombre: 'Aula 201',
+      name: 'Aula 201',
     },
   },
   {
     id: 4,
-    aula_id: 4,
-    capacidad_alumnos: 50,
-    num_computadoras: 45,
-    proyector_instalado: true,
-    aire_acondicionado: true,
-    aula: {
+    classroom_id: 4,
+    student_capacity: 50,
+    computer_count: 45,
+    projector_installed: true,
+    air_conditioning: true,
+    classroom: {
       id: 4,
-      nombre: 'Aula 301',
+      name: 'Aula 301',
     },
   },
 ]
@@ -76,16 +76,16 @@ export const classroomDetailMockService = {
     await delay(800)
     const newItem: ClassroomDetailItem = {
       id: nextId++,
-      aula_id: data.aula_id || null,
-      capacidad_alumnos: data.capacidad_alumnos,
-      num_computadoras: data.num_computadoras || null,
-      proyector_instalado: data.proyector_instalado ?? false,
-      aire_acondicionado: data.aire_acondicionado ?? false,
-      aula: data.aula_id
+      classroom_id: data.classroom_id || null,
+      student_capacity: data.student_capacity,
+      computer_count: data.computer_count || null,
+      projector_installed: data.projector_installed ?? false,
+      air_conditioning: data.air_conditioning ?? false,
+      classroom: data.classroom_id
         ? {
-            id: Number(data.aula_id),
-            nombre: `Aula ${data.aula_id}`,
-          }
+          id: Number(data.classroom_id),
+          name: `Aula ${data.classroom_id}`,
+        }
         : null,
     }
     mockClassroomDetails.push(newItem)

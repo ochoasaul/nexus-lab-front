@@ -3,22 +3,22 @@ import { Panel } from '@/components/dashboard/Panel'
 import { CreateInventoryModal } from './components/modals/CreateInventoryModal'
 import { EditInventoryModal } from './components/modals/EditInventoryModal'
 import { useInventoryPage } from './useInventoryPage'
-import { LaboratorioSelector } from './components/LaboratorioSelector'
+import { LaboratorySelector } from './components/LaboratorySelector'
 import { InventoryList } from './components/InventoryList'
 import { QuickActions } from '@/components/dashboard/QuickActions'
 function InventoryPage() {
   const {
     user,
     isSuperAdmin,
-    laboratorios,
+    laboratories,
     isLoadingLabs,
-    selectedLaboratorioId,
-    setSelectedLaboratorioId,
-    selectedLaboratorio,
+    selectedLaboratoryId,
+    setSelectedLaboratoryId,
+    selectedLaboratory,
     inventory,
     isLoading,
     error,
-    laboratorioIdToUse,
+    laboratoryIdToUse,
     isCreateModalOpen,
     setIsCreateModalOpen,
     isEditModalOpen,
@@ -33,23 +33,23 @@ function InventoryPage() {
   if (!user) {
     return (
       <section className="rounded-3xl border border-dashed border-charcoal-200 bg-surface p-12 text-center text-charcoal-500">
-        Inicia sesión para ver el inventario.
+        Please log in to view inventory.
       </section>
     )
   }
 
-  if (isSuperAdmin && !selectedLaboratorioId && !isLoadingLabs) {
+  if (isSuperAdmin && !selectedLaboratoryId && !isLoadingLabs) {
     return (
-      <Panel title="Inventario">
+      <Panel title="Inventory">
         <div className="space-y-4">
           <div>
             <p className="text-sm text-charcoal-600 mb-4">
-              Selecciona un laboratorio para ver su inventario:
+              Select a laboratory to view its inventory:
             </p>
-            <LaboratorioSelector
-              laboratorios={laboratorios}
+            <LaboratorySelector
+              laboratories={laboratories}
               isLoading={isLoadingLabs}
-              onSelect={(id) => setSelectedLaboratorioId(id)}
+              onSelect={(id) => setSelectedLaboratoryId(id)}
             />
           </div>
         </div>
@@ -62,35 +62,35 @@ function InventoryPage() {
       <section className="grid gap-6">
         <QuickActions />
         <Panel
-          title="Inventario"
+          title="Inventory"
           actions={
             <div className="flex gap-2">
-              {isSuperAdmin && selectedLaboratorioId && (
+              {isSuperAdmin && selectedLaboratoryId && (
                 <Button
-                  label="Cambiar laboratorio"
+                  label="Change Laboratory"
                   variant="ghost"
-                  onClick={() => setSelectedLaboratorioId(undefined)}
+                  onClick={() => setSelectedLaboratoryId(undefined)}
                   className="text-xs"
                 />
               )}
               <Button
-                label="Agregar producto"
+                label="Add Product"
                 variant="secondary"
                 onClick={() => setIsCreateModalOpen(true)}
               />
             </div>
           }
         >
-          {isSuperAdmin && selectedLaboratorioId && selectedLaboratorio && (
+          {isSuperAdmin && selectedLaboratoryId && selectedLaboratory && (
             <div className="mb-4 rounded-2xl border border-primary-200 bg-primary-50 p-3">
               <p className="text-sm text-primary-700">
-                <strong>Laboratorio seleccionado:</strong> {selectedLaboratorio.nombre}
+                <strong>Selected Laboratory:</strong> {selectedLaboratory.name}
               </p>
             </div>
           )}
 
           {isLoading && (
-            <p className="text-sm text-charcoal-500 py-8 text-center">Cargando inventario...</p>
+            <p className="text-sm text-charcoal-500 py-8 text-center">Loading inventory...</p>
           )}
 
           {error && (
@@ -111,7 +111,7 @@ function InventoryPage() {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSubmit={handleCreate}
-          laboratorioId={laboratorioIdToUse}
+          laboratoryId={laboratoryIdToUse}
         />
 
         <EditInventoryModal

@@ -5,20 +5,27 @@ import { authService } from '@/services/authService'
 import { ToastContainer } from '@/components/feedback/Toast'
 
 function App() {
-  const { setProfile } = useUserStore()
+  const { setProfile, setLoading } = useUserStore()
 
   useEffect(() => {
     // Obtener el perfil desde el backend si hay un token válido
     const loadUserProfile = async () => {
-      const user = await authService.getCurrentUser()
-      if (user) {
-        setProfile(user)
-        console.log('👤 Usuario cargado desde el servidor:', user)
+      setLoading(true)
+      try {
+        const user = await authService.getCurrentUser()
+        if (user) {
+          setProfile(user)
+          console.log('👤 Usuario cargado desde el servidor:', user)
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error)
+      } finally {
+        setLoading(false)
       }
     }
-    
+
     loadUserProfile()
-  }, [setProfile])
+  }, [setProfile, setLoading])
 
   return (
     <>

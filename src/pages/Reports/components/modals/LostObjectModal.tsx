@@ -9,16 +9,16 @@ interface LostObjectModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: LostObjectFormData) => void | Promise<void>
-  aulas?: Array<{ id: string | number; nombre: string }>
-  isLoadingAulas?: boolean
-  aulasError?: string | null
+  classrooms?: Array<{ id: string | number; name: string }>
+  isLoadingClassrooms?: boolean
+  classroomsError?: string | null
 }
 
 export interface LostObjectFormData {
-  objeto: string
-  fecha_encontrado: string
-  horario_encontrado: string
-  aula_id: string
+  object: string
+  date_found: string
+  time_found: string
+  classroom_id: string
   multimedia?: File | null
 }
 
@@ -26,15 +26,15 @@ export function LostObjectModal({
   isOpen,
   onClose,
   onSubmit,
-  aulas = [],
-  isLoadingAulas = false,
-  aulasError = null,
+  classrooms = [],
+  isLoadingClassrooms = false,
+  classroomsError = null,
 }: LostObjectModalProps) {
   const [formData, setFormData] = useState<LostObjectFormData>({
-    objeto: '',
-    fecha_encontrado: new Date().toISOString().split('T')[0],
-    horario_encontrado: '',
-    aula_id: '',
+    object: '',
+    date_found: new Date().toISOString().split('T')[0],
+    time_found: '',
+    classroom_id: '',
     multimedia: null,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -56,7 +56,7 @@ export function LostObjectModal({
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
     setFormData((prev) => ({ ...prev, multimedia: file }))
-    
+
     // Crear preview de la imagen
     if (file) {
       const reader = new FileReader()
@@ -89,12 +89,12 @@ export function LostObjectModal({
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof LostObjectFormData, string>> = {}
 
-    if (!formData.objeto.trim()) {
-      newErrors.objeto = 'El objeto es requerido'
+    if (!formData.object.trim()) {
+      newErrors.object = 'Object is required'
     }
 
     if (!formData.multimedia) {
-      newErrors.multimedia = 'La imagen es requerida'
+      newErrors.multimedia = 'Image is required'
     }
 
     setErrors(newErrors)
@@ -103,7 +103,7 @@ export function LostObjectModal({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    
+
     if (!validate()) {
       return
     }
@@ -113,10 +113,10 @@ export function LostObjectModal({
       await onSubmit(formData)
       // Reset form
       setFormData({
-        objeto: '',
-        fecha_encontrado: new Date().toISOString().split('T')[0],
-        horario_encontrado: '',
-        aula_id: '',
+        object: '',
+        date_found: new Date().toISOString().split('T')[0],
+        time_found: '',
+        classroom_id: '',
         multimedia: null,
       })
       setPreviewImage(null)
@@ -132,10 +132,10 @@ export function LostObjectModal({
   const handleClose = () => {
     if (!isSubmitting) {
       setFormData({
-        objeto: '',
-        fecha_encontrado: new Date().toISOString().split('T')[0],
-        horario_encontrado: '',
-        aula_id: '',
+        object: '',
+        date_found: new Date().toISOString().split('T')[0],
+        time_found: '',
+        classroom_id: '',
         multimedia: null,
       })
       setPreviewImage(null)
@@ -152,33 +152,32 @@ export function LostObjectModal({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-1">
-            Objeto <span className="text-primary-600">*</span>
+            Object <span className="text-primary-600">*</span>
           </label>
           <input
             type="text"
-            name="objeto"
-            value={formData.objeto}
+            name="object"
+            value={formData.object}
             onChange={handleChange}
-            className={`w-full rounded-2xl border ${
-              errors.objeto ? 'border-red-300' : 'border-charcoal-200'
-            } bg-white px-4 py-2.5 text-charcoal-900 placeholder:text-charcoal-400 focus:border-primary-400 focus:outline-none`}
-            placeholder="Ej: Tarjeta de acceso, Laptop, etc."
+            className={`w-full rounded-2xl border ${errors.object ? 'border-red-300' : 'border-charcoal-200'
+              } bg-white px-4 py-2.5 text-charcoal-900 placeholder:text-charcoal-400 focus:border-primary-400 focus:outline-none`}
+            placeholder="Ex: Access Card, Laptop, etc."
             required
           />
-          {errors.objeto && (
-            <p className="mt-1 text-sm text-red-600">{errors.objeto}</p>
+          {errors.object && (
+            <p className="mt-1 text-sm text-red-600">{errors.object}</p>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-charcoal-700 mb-1">
-              Fecha encontrado
+              Date Found
             </label>
             <input
               type="date"
-              name="fecha_encontrado"
-              value={formData.fecha_encontrado}
+              name="date_found"
+              value={formData.date_found}
               onChange={handleChange}
               className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
             />
@@ -186,15 +185,15 @@ export function LostObjectModal({
 
           <div>
             <label className="block text-sm font-medium text-charcoal-700 mb-1">
-              Horario encontrado
+              Time Found
             </label>
             <select
-              name="horario_encontrado"
-              value={formData.horario_encontrado}
+              name="time_found"
+              value={formData.time_found}
               onChange={handleChange}
               className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
             >
-              <option value="">Seleccionar horario</option>
+              <option value="">Select time</option>
               {SCHEDULE_TIMES.map((schedule) => (
                 <option key={schedule.id} value={schedule.label}>
                   {schedule.label}
@@ -206,35 +205,34 @@ export function LostObjectModal({
 
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-1">
-            Aula
+            Classroom
           </label>
-            <select
-              name="aula_id"
-              value={formData.aula_id}
-              onChange={handleChange}
-              disabled={isLoadingAulas}
-              className={`w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none ${
-                isLoadingAulas ? 'opacity-50 cursor-not-allowed' : ''
+          <select
+            name="classroom_id"
+            value={formData.classroom_id}
+            onChange={handleChange}
+            disabled={isLoadingClassrooms}
+            className={`w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none ${isLoadingClassrooms ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-            >
-              <option value="">
-                {isLoadingAulas ? 'Cargando aulas...' : 'Seleccionar aula'}
+          >
+            <option value="">
+              {isLoadingClassrooms ? 'Loading classrooms...' : 'Select classroom'}
+            </option>
+            {classroomsError ? (
+              <option value="" disabled>
+                Error loading classrooms
               </option>
-              {aulasError ? (
-                <option value="" disabled>
-                  Error al cargar aulas
+            ) : (
+              classrooms.map((classroom) => (
+                <option key={classroom.id} value={classroom.id}>
+                  {classroom.name}
                 </option>
-              ) : (
-                aulas.map((aula) => (
-                  <option key={aula.id} value={aula.id}>
-                    {aula.nombre}
-                  </option>
-                ))
-              )}
-            </select>
-            {aulasError && (
-              <p className="mt-1 text-sm text-red-600">{aulasError}</p>
+              ))
             )}
+          </select>
+          {classroomsError && (
+            <p className="mt-1 text-sm text-red-600">{classroomsError}</p>
+          )}
         </div>
 
         <div>
@@ -247,19 +245,18 @@ export function LostObjectModal({
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className={`w-full rounded-2xl border ${
-              errors.multimedia ? 'border-red-300' : 'border-charcoal-200'
-            } bg-white px-4 py-2.5 text-sm text-charcoal-900 focus:border-primary-400 focus:outline-none file:mr-4 file:rounded-full file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-600 hover:file:bg-primary-100`}
+            className={`w-full rounded-2xl border ${errors.multimedia ? 'border-red-300' : 'border-charcoal-200'
+              } bg-white px-4 py-2.5 text-sm text-charcoal-900 focus:border-primary-400 focus:outline-none file:mr-4 file:rounded-full file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-600 hover:file:bg-primary-100`}
             required
           />
           {errors.multimedia && (
             <p className="mt-1 text-sm text-red-600">{errors.multimedia}</p>
           )}
-          
+
           {formData.multimedia && (
             <div className="mt-3">
               <div className="rounded-2xl border border-charcoal-200 bg-charcoal-50 p-4">
-                <div 
+                <div
                   className="flex items-center gap-4 cursor-pointer group"
                   onClick={handleImageClick}
                 >
@@ -307,7 +304,7 @@ export function LostObjectModal({
           />
         </div>
       </form>
-      
+
       <ImagePreviewModal
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}

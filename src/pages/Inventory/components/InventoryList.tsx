@@ -1,10 +1,10 @@
 import Button from '@/components/ui/Button/Button'
-import type { InventarioItem } from '@/services/inventoryService'
+import type { InventoryItem } from '@/services/inventoryService'
 
 interface InventoryListProps {
-  inventory: InventarioItem[]
+  inventory: InventoryItem[]
   isSuperAdmin: boolean
-  onEdit: (item: InventarioItem) => void
+  onEdit: (item: InventoryItem) => void
   onDelete: (id: string | number) => void
 }
 
@@ -27,16 +27,16 @@ export function InventoryList({ inventory, isSuperAdmin, onEdit, onDelete }: Inv
           <header className="mb-3 flex items-start justify-between">
             <div className="flex-1 min-w-0">
               <h4 className="text-lg font-semibold text-charcoal-900">
-                {item.producto?.nombre || 'Sin nombre'}
+                {item.product?.name || 'Sin nombre'}
               </h4>
-              {item.producto?.codigo_base && (
+              {item.product?.base_code && (
                 <p className="text-xs text-charcoal-500 mt-1">
-                  Código: {item.producto.codigo_base}
+                  Código: {item.product.base_code}
                 </p>
               )}
-              {item.producto?.descripcion && (
+              {item.product?.description && (
                 <p className="text-sm text-charcoal-600 mt-2">
-                  {item.producto.descripcion}
+                  {item.product.description}
                 </p>
               )}
             </div>
@@ -44,11 +44,11 @@ export function InventoryList({ inventory, isSuperAdmin, onEdit, onDelete }: Inv
           <footer className="mt-4 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-charcoal-900">
-                Cantidad: <span className="text-primary-600">{item.cantidad}</span>
+                Cantidad: <span className="text-primary-600">{item.quantity}</span>
               </p>
-              {isSuperAdmin && item.laboratorio && (
+              {isSuperAdmin && item.laboratory && (
                 <p className="text-xs text-charcoal-500 mt-1">
-                  {item.laboratorio.nombre}
+                  {item.laboratory.name}
                 </p>
               )}
             </div>

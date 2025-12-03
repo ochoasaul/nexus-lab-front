@@ -2,31 +2,31 @@
 import { classroomDetailMockService } from '@/mocks/classroomDetailMock'
 
 export interface CreateClassroomDetailDto {
-  aula_id?: string | number
-  capacidad_alumnos: number
-  num_computadoras?: number
-  proyector_instalado: boolean
-  aire_acondicionado: boolean
+  classroom_id?: string | number
+  student_capacity: number
+  computer_count?: number
+  projector_installed: boolean
+  air_conditioning: boolean
 }
 
 export interface UpdateClassroomDetailDto {
-  aula_id?: string | number
-  capacidad_alumnos?: number
-  num_computadoras?: number
-  proyector_instalado?: boolean
-  aire_acondicionado?: boolean
+  classroom_id?: string | number
+  student_capacity?: number
+  computer_count?: number
+  projector_installed?: boolean
+  air_conditioning?: boolean
 }
 
 export interface ClassroomDetailItem {
   id: string | number
-  aula_id: string | number | null
-  capacidad_alumnos: number
-  num_computadoras: number | null
-  proyector_instalado: boolean
-  aire_acondicionado: boolean
-  aula?: {
+  classroom_id: string | number | null
+  student_capacity: number
+  computer_count: number | null
+  projector_installed: boolean
+  air_conditioning: boolean
+  classroom?: {
     id: string | number
-    nombre: string
+    name: string
   } | null
 }
 
@@ -34,59 +34,59 @@ export interface ClassroomDetailItem {
 export const classroomDetailService = {
   create: async (data: CreateClassroomDetailDto): Promise<ClassroomDetailItem> => {
     try {
-      // const { data: response } = await api.post<ClassroomDetailItem>('/detalle-aula', data)
+      // const { data: response } = await api.post<ClassroomDetailItem>('/classroom-detail', data)
       // return response
       return await classroomDetailMockService.create(data)
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error al registrar detalle de aula'
+        error.message || 'Error registering classroom detail'
       )
     }
   },
 
   update: async (id: string | number, data: UpdateClassroomDetailDto): Promise<ClassroomDetailItem> => {
     try {
-      // const { data: response } = await api.patch<ClassroomDetailItem>(`/detalle-aula/${id}`, data)
+      // const { data: response } = await api.patch<ClassroomDetailItem>(`/classroom-detail/${id}`, data)
       // return response
       return await classroomDetailMockService.update(id, data)
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error al actualizar detalle de aula'
+        error.message || 'Error updating classroom detail'
       )
     }
   },
 
   getAll: async (): Promise<ClassroomDetailItem[]> => {
     try {
-      // const { data } = await api.get<ClassroomDetailItem[]>('/detalle-aula')
+      // const { data } = await api.get<ClassroomDetailItem[]>('/classroom-detail')
       // return data
       return await classroomDetailMockService.getAll()
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error al obtener detalles de aulas'
+        error.message || 'Error getting classroom details'
       )
     }
   },
 
   getById: async (id: string | number): Promise<ClassroomDetailItem> => {
     try {
-      // const { data } = await api.get<ClassroomDetailItem>(`/detalle-aula/${id}`)
+      // const { data } = await api.get<ClassroomDetailItem>(`/classroom-detail/${id}`)
       // return data
       return await classroomDetailMockService.getById(id)
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error al obtener detalle de aula'
+        error.message || 'Error getting classroom detail'
       )
     }
   },
 
   remove: async (id: string | number): Promise<void> => {
     try {
-      // await api.delete(`/detalle-aula/${id}`)
+      // await api.delete(`/classroom-detail/${id}`)
       await classroomDetailMockService.remove(id)
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error al eliminar detalle de aula'
+        error.message || 'Error deleting classroom detail'
       )
     }
   },

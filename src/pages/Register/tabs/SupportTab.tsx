@@ -1,198 +1,83 @@
 import { useState, useEffect } from 'react'
 import Button from '@/components/ui/Button/Button'
-import { StatusBadge } from '@/components/ui/StatusBadge'
-import { soporteService, type SoporteMateriaItem, type SoporteTecnicoItem } from '@/services/soporteService'
-import { useToastStore } from '@/store/toastStore'
-import { SoporteModal } from '../components/modals/SoporteModal'
-import { EditSupportModal } from '../components/modals/EditSupportModal'
-
-type SupportItem = SoporteMateriaItem | SoporteTecnicoItem
-type SupportType = 'materia' | 'tecnico'
+import { SupportModal } from '../components/modals/SoporteModal'
+import { useSupports } from '@/hooks/useSupport'
 
 export function SupportTab() {
-  const [supportMateria, setSupportMateria] = useState<SoporteMateriaItem[]>([])
-  const [supportTecnico, setSupportTecnico] = useState<SoporteTecnicoItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [selectedSupport, setSelectedSupport] = useState<SupportItem | null>(null)
-  const [selectedType, setSelectedType] = useState<SupportType>('materia')
-  const addToast = useToastStore((state) => state.addToast)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const { supports, isLoading, fetchSupports } = useSupports()
 
-  useEffect(() => {
-    loadSupports()
-  }, [])
+    useEffect(() => {
+        fetchSupports()
+    }, [])
 
-  const loadSupports = async () => {
-    setIsLoading(true)
-    try {
-      const [materia, tecnico] = await Promise.all([
-        soporteService.getAllMateria(),
-        soporteService.getAllTecnico(),
-      ])
-      setSupportMateria(materia)
-      setSupportTecnico(tecnico)
-    } catch (error: any) {
-      addToast(error.message || 'Error loading supports', 'error')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-charcoal-900">
+                    Support Tickets
+                </h3>
+                <Button
+                    variant="primary"
+                    label="Register Support"
+                    onClick={() => setIsModalOpen(true)}
+                />
+            </div>
 
-  const handleCreate = async (data: any) => {
-    try {
-      if (data.tipo === 'materia') {
-        await soporteService.createMateria(data)
-      } else {
-        await soporteService.createTecnico(data)
-      }
-      await loadSupports()
-      setIsCreateModalOpen(false)
-      addToast('Support registered successfully', 'success')
-    } catch (error: any) {
-      addToast(error.message || 'Error registering support', 'error')
-      throw error
-    }
-  }
-
-  const handleUpdate = async (id: string | number, data: any, type: SupportType) => {
-    try {
-      if (type === 'materia') {
-        await soporteService.updateMateria(id, data)
-      } else {
-        await soporteService.updateTecnico(id, data)
-      }
-      await loadSupports()
-      setIsEditModalOpen(false)
-      setSelectedSupport(null)
-      addToast('Support updated successfully', 'success')
-    } catch (error: any) {
-      addToast(error.message || 'Error updating support', 'error')
-      throw error
-    }
-  }
-
-  const handleDelete = async (id: string | number, type: SupportType) => {
-    if (!confirm('Are you sure you want to delete this support?')) {
-      return
-    }
-
-    try {
-      if (type === 'materia') {
-        await soporteService.removeMateria(id)
-      } else {
-        await soporteService.removeTecnico(id)
-      }
-      await loadSupports()
-      addToast('Support deleted successfully', 'success')
-    } catch (error: any) {
-      addToast(error.message || 'Error deleting support', 'error')
-    }
-  }
-
-  const handleEdit = (support: SupportItem, type: SupportType) => {
-    setSelectedSupport(support)
-    setSelectedType(type)
-    setIsEditModalOpen(true)
-  }
-
-  const allSupports: Array<{ item: SupportItem; type: SupportType }> = [
-    ...supportMateria.map(item => ({ item, type: 'materia' as SupportType })),
-    ...supportTecnico.map(item => ({ item, type: 'tecnico' as SupportType })),
-  ].sort((a, b) => {
-    const dateA = new Date(a.item.created_at).getTime()
-    const dateB = new Date(b.item.created_at).getTime()
-    return dateB - dateA
-  })
-
-  return (
-    <>
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-charcoal-400">Support Management</p>
-          <h3 className="text-2xl font-semibold text-charcoal-900">Support Registrations</h3>
-        </div>
-        <Button
-          label="Register Support"
-          variant="secondary"
-          onClick={() => setIsCreateModalOpen(true)}
-        />
-      </div>
-
-      {isLoading ? (
-        <p className="text-sm text-charcoal-500 py-8 text-center">Loading supports...</p>
-      ) : allSupports.length === 0 ? (
-        <p className="text-sm text-charcoal-500 py-8 text-center">No support registrations found.</p>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {allSupports.map(({ item, type }) => (
-            <article
-              key={`${type}-${item.id}`}
-              className="rounded-2xl border border-charcoal-100 bg-white p-4"
-            >
-              <header className="mb-3 flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-lg font-semibold text-charcoal-900">{item.tipo}</h4>
-                  <p className="text-sm text-charcoal-600 mt-1">{item.problema || 'No problem description'}</p>
+            {isLoading ? (
+                <div className="text-center py-8 text-charcoal-500">
+                    Loading supports...
                 </div>
-                <StatusBadge label={type === 'materia' ? 'Materia' : 'Tecnico'} />
-              </header>
-              <div className="space-y-2 text-sm text-charcoal-600">
-                {item.solucion && (
-                  <p>
-                    <span className="font-medium">Solution:</span> {item.solucion}
-                  </p>
-                )}
-                {item.fecha_hora && (
-                  <p>
-                    <span className="font-medium">Date:</span>{' '}
-                    {new Date(item.fecha_hora).toLocaleString()}
-                  </p>
-                )}
-                {item.laboratorio && (
-                  <p>
-                    <span className="font-medium">Laboratory:</span> {item.laboratorio.nombre}
-                  </p>
-                )}
-              </div>
-              <div className="mt-4 flex gap-2">
-                <Button
-                  label="Edit"
-                  variant="ghost"
-                  onClick={() => handleEdit(item, type)}
-                  className="text-xs"
-                />
-                <Button
-                  label="Delete"
-                  variant="ghost"
-                  onClick={() => handleDelete(item.id, type)}
-                  className="text-xs text-red-600 hover:text-red-700"
-                />
-              </div>
-            </article>
-          ))}
+            ) : supports.length === 0 ? (
+                <div className="text-center py-12 rounded-2xl border border-dashed border-charcoal-200 bg-charcoal-50">
+                    <p className="text-charcoal-500">No support tickets found.</p>
+                </div>
+            ) : (
+                <div className="overflow-hidden rounded-2xl border border-charcoal-200 bg-white">
+                    <table className="w-full text-left text-sm">
+                        <thead className="bg-charcoal-50 text-charcoal-500">
+                            <tr>
+                                <th className="px-6 py-3 font-medium">Date</th>
+                                <th className="px-6 py-3 font-medium">Problem</th>
+                                <th className="px-6 py-3 font-medium">Solution</th>
+                                <th className="px-6 py-3 font-medium">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-charcoal-100">
+                            {supports.map((support: any) => (
+                                <tr key={support.id} className="hover:bg-charcoal-25">
+                                    <td className="px-6 py-4 text-charcoal-900">
+                                        {support.date_time ? new Date(support.date_time).toLocaleDateString() : '-'}
+                                    </td>
+                                    <td className="px-6 py-4 text-charcoal-900">
+                                        {support.problem}
+                                    </td>
+                                    <td className="px-6 py-4 text-charcoal-600">
+                                        {support.solution || '-'}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${support.solution
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                            {support.solution ? 'Resolved' : 'Pending'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            <SupportModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSuccess={() => {
+                    fetchSupports()
+                    setIsModalOpen(false)
+                }}
+            />
         </div>
-      )}
-
-      <SoporteModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreate}
-      />
-
-      {selectedSupport && (
-        <EditSupportModal
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false)
-            setSelectedSupport(null)
-          }}
-          support={selectedSupport}
-          type={selectedType}
-          onSubmit={(data) => handleUpdate(selectedSupport.id, data, selectedType)}
-        />
-      )}
-    </>
-  )
+    )
 }
-

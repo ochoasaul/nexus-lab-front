@@ -6,16 +6,16 @@ import { useAuth } from '@/hooks/useAuth'
 import { ROUTES } from '@/config'
 
 interface LoginValues {
-  usuario: string
-  clave: string
+  username: string
+  password: string
 }
 
 export function useLogin() {
   const navigate = useNavigate()
-  
+
   const [values, setValues] = useState<LoginValues>({
-    usuario: '',
-    clave: ''
+    username: '',
+    password: ''
   })
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -38,7 +38,7 @@ export function useLogin() {
     setIsSubmitting(true)
 
     try {
-      console.log('🔐 Intentando login con:', values.usuario)
+      console.log('🔐 Intentando login con:', values.username)
       const response = await login(values)
 
       console.log('✅ Login exitoso:', response.user)
@@ -48,7 +48,7 @@ export function useLogin() {
       setTimeout(() => {
         navigate(ROUTES.dashboard, { replace: true })
       }, 100)
-      
+
     } catch (err: any) {
       console.error('❌ Error en login:', err)
       setError(err.message || 'Credenciales incorrectas.')

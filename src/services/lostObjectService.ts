@@ -1,10 +1,10 @@
 import api from './api'
 
 export interface CreateLostObjectDto {
-  objeto: string
-  fecha_encontrado?: string
-  horario_encontrado?: string
-  aula_id?: string
+  object: string
+  found_date?: string
+  found_schedule?: string
+  classroom_id?: string
 }
 
 export interface LostObjectResponse {
@@ -12,35 +12,44 @@ export interface LostObjectResponse {
   upload: any
 }
 
+export enum LostObjectState {
+  Perdido = 'Perdido',
+  Porteria = 'Porteria',
+  Entregado = 'Entregado',
+}
+
 export interface LostObjectItem {
   id: string | number
-  objeto: string
-  estado: string
+  object: string
+  state: LostObjectState | string
   created_at: string
-  fecha_encontrado?: string | null
-  horario_encontrado?: string | null
-  aula?: {
+  found_date?: string | null
+  found_schedule?: string | null
+  classroom?: {
     id: string | number
-    nombre: string
+    name: string
   } | null
   multimedia?: {
     id: string | number
-    ruta: string
-    nombre?: string | null
+    path: string
+    name?: string | null
   } | null
-  entrega_objeto?: Array<{
+  object_delivery?: Array<{
     id: string | number
-    fecha_entrega: string | null
+    delivery_date: string | null
     multimedia?: {
       id: string | number
-      ruta: string
-      nombre?: string | null
+      path: string
+      name?: string | null
     } | null
   }> | null
 }
 
+
+const prefixUrl = '/lost-objects-management'
+
 export interface DeliverLostObjectPayload {
-  persona_id: string
+  person_id: string
 }
 
 export const lostObjectService = {
@@ -50,21 +59,21 @@ export const lostObjectService = {
     console.log(data)
     // Agregar la imagen (el backend espera el campo 'image')
     formData.append('image', imageFile)
-    
+
     // Agregar los demás campos
-    formData.append('objeto', data.objeto)
-    if (data.fecha_encontrado) {
-      formData.append('fecha_encontrado', data.fecha_encontrado.toString())
+    formData.append('object', data.object)
+    if (data.found_date) {
+      formData.append('found_date', data.found_date.toString())
     }
-    if (data.horario_encontrado) {
-      formData.append('horario_encontrado', data.horario_encontrado.toString())
+    if (data.found_schedule) {
+      formData.append('found_schedule', data.found_schedule.toString())
     }
-    if (data.aula_id) {
-      formData.append('aula_id', String(data.aula_id.toString()))
+    if (data.classroom_id) {
+      formData.append('classroom_id', String(data.classroom_id.toString()))
     }
 
     try {
-      const { data: response } = await api.post<LostObjectResponse>('/lost-objects', formData, {
+      const { data: response } = await api.post<LostObjectResponse>(`${prefixUrl}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -72,8 +81,8 @@ export const lostObjectService = {
       return response
     } catch (error: any) {
       throw new Error(
-        error.response?.data?.message || 
-        'Error al registrar el objeto perdido'
+        error.response?.data?.message ||
+        'Error registering lost object'
       )
     }
   },
@@ -84,23 +93,23 @@ export const lostObjectService = {
       if (month) {
         params.month = month
       }
-      const { data } = await api.get<LostObjectItem[]>('/lost-objects/laboratory/by-month', { params })
+      const { data } = await api.get<LostObjectItem[]>(`${prefixUrl}/laboratory/by-month`, { params })
       return data
     } catch (error: any) {
       throw new Error(
         error.response?.data?.message ||
-          'Error al obtener los objetos perdidos del laboratorio'
+        'Error getting laboratory lost objects'
       )
     }
   },
 
   deliver: async (lostObjectId: string | number, payload: DeliverLostObjectPayload, evidence: File) => {
     const formData = new FormData()
-    formData.append('persona_id', payload.persona_id)
+    formData.append('person_id', payload.person_id)
     formData.append('image', evidence)
-    
+
     try {
-      const { data } = await api.post(`/lost-objects/${lostObjectId}/deliver`, formData, {
+      const { data } = await api.post(`${prefixUrl}/${lostObjectId}/deliver`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -109,14 +118,14 @@ export const lostObjectService = {
     } catch (error: any) {
       throw new Error(
         error.response?.data?.message ||
-          'Error al entregar el objeto perdido'
+        'Error delivering lost object'
       )
     }
   },
 
-  moveToPorteriaByDateRange: async (startDate: string, endDate: string) => {
+  moveToReceptionByDateRange: async (startDate: string, endDate: string) => {
     try {
-      const { data } = await api.post('/lost-objects/move-to-porteria', {
+      const { data } = await api.post(`${prefixUrl}/move-to-reception`, {
         startDate,
         endDate,
       })
@@ -124,19 +133,19 @@ export const lostObjectService = {
     } catch (error: any) {
       throw new Error(
         error.response?.data?.message ||
-          'Error al mover objetos a portería'
+        'Error moving objects to porteria'
       )
     }
   },
 
-  moveAllPerdidosToPorteria: async () => {
+  moveAllLostToReception: async () => {
     try {
-      const { data } = await api.post('/lost-objects/move-all-perdidos-to-porteria')
+      const { data } = await api.post(`${prefixUrl}/move-all-lost-to-reception`)
       return data
     } catch (error: any) {
       throw new Error(
         error.response?.data?.message ||
-          'Error al mover objetos a portería'
+        'Error moving objects to porteria'
       )
     }
   },

@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect } from 'react'
 import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
-import { useAulas } from '@/hooks/useAulas'
+import { useClassrooms } from '@/hooks/useClassrooms'
 import type { ClassroomDetailItem } from '@/services/classroomDetailService'
 
 interface EditClassroomModalProps {
@@ -9,11 +9,11 @@ interface EditClassroomModalProps {
   onClose: () => void
   classroom: ClassroomDetailItem
   onSubmit: (id: string | number, data: {
-    aula_id?: string | number
-    capacidad_alumnos?: number
-    num_computadoras?: number
-    proyector_instalado?: boolean
-    aire_acondicionado?: boolean
+    classroom_id?: string | number
+    student_capacity?: number
+    computer_count?: number
+    projector_installed?: boolean
+    air_conditioning?: boolean
   }) => Promise<void>
 }
 
@@ -23,36 +23,36 @@ export function EditClassroomModal({
   classroom,
   onSubmit,
 }: EditClassroomModalProps) {
-  const { aulas, isLoading: isLoadingAulas } = useAulas()
-  const [aulaId, setAulaId] = useState<string>(classroom.aula_id ? String(classroom.aula_id) : '')
-  const [capacidadAlumnos, setCapacidadAlumnos] = useState<number>(classroom.capacidad_alumnos)
-  const [numComputadoras, setNumComputadoras] = useState<number | undefined>(classroom.num_computadoras || undefined)
-  const [proyectorInstalado, setProyectorInstalado] = useState(classroom.proyector_instalado)
-  const [aireAcondicionado, setAireAcondicionado] = useState(classroom.aire_acondicionado)
+  const { classrooms, isLoading: isLoadingClassrooms } = useClassrooms()
+  const [classroomId, setClassroomId] = useState<string>(classroom.classroom_id ? String(classroom.classroom_id) : '')
+  const [studentCapacity, setStudentCapacity] = useState<number>(classroom.student_capacity)
+  const [computerCount, setComputerCount] = useState<number | undefined>(classroom.computer_count || undefined)
+  const [projectorInstalled, setProjectorInstalled] = useState(classroom.projector_installed)
+  const [airConditioning, setAirConditioning] = useState(classroom.air_conditioning)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (classroom) {
-      setAulaId(classroom.aula_id ? String(classroom.aula_id) : '')
-      setCapacidadAlumnos(classroom.capacidad_alumnos)
-      setNumComputadoras(classroom.num_computadoras || undefined)
-      setProyectorInstalado(classroom.proyector_instalado)
-      setAireAcondicionado(classroom.aire_acondicionado)
+      setClassroomId(classroom.classroom_id ? String(classroom.classroom_id) : '')
+      setStudentCapacity(classroom.student_capacity)
+      setComputerCount(classroom.computer_count || undefined)
+      setProjectorInstalled(classroom.projector_installed)
+      setAirConditioning(classroom.air_conditioning)
     }
   }, [classroom])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (capacidadAlumnos <= 0) return
+    if (studentCapacity <= 0) return
 
     setIsSubmitting(true)
     try {
       await onSubmit(classroom.id, {
-        aula_id: aulaId || undefined,
-        capacidad_alumnos: capacidadAlumnos,
-        num_computadoras: numComputadoras || undefined,
-        proyector_instalado: proyectorInstalado,
-        aire_acondicionado: aireAcondicionado,
+        classroom_id: classroomId || undefined,
+        student_capacity: studentCapacity,
+        computer_count: computerCount || undefined,
+        projector_installed: projectorInstalled,
+        air_conditioning: airConditioning,
       })
     } catch (error) {
       // Error handled by parent
@@ -68,18 +68,18 @@ export function EditClassroomModal({
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
             Classroom
           </label>
-          {isLoadingAulas ? (
+          {isLoadingClassrooms ? (
             <p className="text-sm text-charcoal-500">Loading classrooms...</p>
           ) : (
             <select
-              value={aulaId}
-              onChange={(e) => setAulaId(e.target.value)}
+              value={classroomId}
+              onChange={(e) => setClassroomId(e.target.value)}
               className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
             >
               <option value="">Select classroom (optional)</option>
-              {aulas.map((aula) => (
-                <option key={aula.id} value={String(aula.id)}>
-                  {aula.nombre}
+              {classrooms.map((classroom) => (
+                <option key={classroom.id} value={String(classroom.id)}>
+                  {classroom.name}
                 </option>
               ))}
             </select>
@@ -92,8 +92,8 @@ export function EditClassroomModal({
           </label>
           <input
             type="number"
-            value={capacidadAlumnos}
-            onChange={(e) => setCapacidadAlumnos(parseInt(e.target.value) || 0)}
+            value={studentCapacity}
+            onChange={(e) => setStudentCapacity(parseInt(e.target.value) || 0)}
             required
             min="1"
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
@@ -106,8 +106,8 @@ export function EditClassroomModal({
           </label>
           <input
             type="number"
-            value={numComputadoras || ''}
-            onChange={(e) => setNumComputadoras(e.target.value ? parseInt(e.target.value) : undefined)}
+            value={computerCount || ''}
+            onChange={(e) => setComputerCount(e.target.value ? parseInt(e.target.value) : undefined)}
             min="0"
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
           />
@@ -117,8 +117,8 @@ export function EditClassroomModal({
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
-              checked={proyectorInstalado}
-              onChange={(e) => setProyectorInstalado(e.target.checked)}
+              checked={projectorInstalled}
+              onChange={(e) => setProjectorInstalled(e.target.checked)}
               className="w-5 h-5 rounded border-charcoal-300 text-primary-600 focus:ring-primary-500"
             />
             <span className="text-sm text-charcoal-700">Projector Installed</span>
@@ -127,8 +127,8 @@ export function EditClassroomModal({
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
-              checked={aireAcondicionado}
-              onChange={(e) => setAireAcondicionado(e.target.checked)}
+              checked={airConditioning}
+              onChange={(e) => setAirConditioning(e.target.checked)}
               className="w-5 h-5 rounded border-charcoal-300 text-primary-600 focus:ring-primary-500"
             />
             <span className="text-sm text-charcoal-700">Air Conditioning</span>
@@ -146,7 +146,7 @@ export function EditClassroomModal({
             type="submit"
             label="Update"
             variant="primary"
-            disabled={capacidadAlumnos <= 0 || isSubmitting}
+            disabled={studentCapacity <= 0 || isSubmitting}
           />
         </div>
       </form>

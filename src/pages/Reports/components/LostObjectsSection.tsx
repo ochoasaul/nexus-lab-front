@@ -1,10 +1,11 @@
 import Button from '@/components/ui/Button/Button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { LostObjectItem } from '@/services/lostObjectService'
+import { LostObjectState } from '@/services/lostObjectService'
 
 interface LostObjectsSectionProps {
-  perdidos: LostObjectItem[]
-  totalPerdidos: number
+  lostItems: LostObjectItem[]
+  totalLostItems: number
   currentMonth: string
   isLoading: boolean
   error: string | null
@@ -19,8 +20,8 @@ interface LostObjectsSectionProps {
 }
 
 export function LostObjectsSection({
-  perdidos,
-  totalPerdidos,
+  lostItems,
+  totalLostItems,
   currentMonth,
   isLoading,
   error,
@@ -35,51 +36,51 @@ export function LostObjectsSection({
 }: LostObjectsSectionProps) {
   const renderLostObjectsList = () => {
     if (isLoading) {
-      return <p className="text-sm text-charcoal-500">Cargando objetos perdidos...</p>
+      return <p className="text-sm text-charcoal-500">Loading lost objects...</p>
     }
 
     if (error) {
       return <p className="text-sm text-red-600">{error}</p>
     }
 
-    if (perdidos.length === 0) {
-      return <p className="text-sm text-charcoal-500">No hay objetos perdidos.</p>
+    if (lostItems.length === 0) {
+      return <p className="text-sm text-charcoal-500">No lost objects.</p>
     }
 
     return (
       <>
         <ul className="space-y-4">
-          {perdidos.map((lost) => (
+          {lostItems.map((lost) => (
             <article key={lost.id} className="rounded-2xl border border-charcoal-100 bg-white p-4 min-h-[140px] flex flex-col">
               <header className="mb-2 flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-lg font-semibold text-charcoal-900 mb-1">{lost.objeto}</h4>
+                  <h4 className="text-lg font-semibold text-charcoal-900 mb-1">{lost.object}</h4>
                   <small className="text-xs text-charcoal-400 block">
-                    {lost.fecha_encontrado
-                      ? `Encontrado el ${new Date(lost.fecha_encontrado).toLocaleDateString()}`
-                      : 'Fecha encontrada no registrada'}
-                    {lost.horario_encontrado && ` a las ${lost.horario_encontrado}`}
+                    {lost.found_date
+                      ? `Found on ${new Date(lost.found_date).toLocaleDateString()}`
+                      : 'Found date not registered'}
+                    {lost.found_schedule && ` at ${lost.found_schedule}`}
                   </small>
                 </div>
-                <StatusBadge label={lost.estado} />
+                <StatusBadge label={lost.state} />
               </header>
               <div className="mt-auto flex items-end justify-between gap-2">
-                {lost.aula?.nombre && (
-                  <p className="text-sm text-charcoal-600 py-1">Aula: {lost.aula.nombre}</p>
+                {lost.classroom?.name && (
+                  <p className="text-sm text-charcoal-600 py-1">Classroom: {lost.classroom.name}</p>
                 )}
                 <div className="flex gap-2">
-                  {((lost.estado === 'Perdido' || lost.estado === 'Porteria') && lost.multimedia?.ruta) || 
-                   (lost.estado === 'Entregado' && lost.entrega_objeto?.[0]?.multimedia?.ruta) ? (
+                  {((lost.state === LostObjectState.Perdido || lost.state === LostObjectState.Porteria) && lost.multimedia?.path) ||
+                    (lost.state === LostObjectState.Entregado && lost.object_delivery?.[0]?.multimedia?.path) ? (
                     <Button
-                      label="Ver"
+                      label="View"
                       variant="ghost"
                       onClick={() => onView(lost)}
                       className="text-xs px-2 py-1"
                     />
                   ) : null}
-                  {lost.estado === 'Perdido' && (
+                  {lost.state === LostObjectState.Perdido && (
                     <Button
-                      label="Entregar"
+                      label="Deliver"
                       variant="ghost"
                       onClick={() => onDeliver(lost)}
                       className="text-xs px-2 py-1"
@@ -90,7 +91,7 @@ export function LostObjectsSection({
             </article>
           ))}
         </ul>
-        {totalPerdidos > 0 && (
+        {totalLostItems > 0 && (
           <div className="mt-4 flex justify-center">
             <button
               type="button"
@@ -101,7 +102,7 @@ export function LostObjectsSection({
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              {isMovingToPorteria ? 'Moviendo...' : 'Mover todos a Portería'}
+              {isMovingToPorteria ? 'Moving...' : 'Move all to Reception'}
             </button>
           </div>
         )}
@@ -113,8 +114,8 @@ export function LostObjectsSection({
     <section className="rounded-2xl border border-charcoal-100 bg-white p-4 md:border-0 md:bg-transparent md:p-0">
       <div className="mb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-charcoal-400">Objetos perdidos</p>
-          <p className="text-sm text-charcoal-500">Laboratorio asignado · {currentMonth}</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-charcoal-400">Lost Objects</p>
+          <p className="text-sm text-charcoal-500">Assigned Laboratory · {currentMonth}</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -123,13 +124,13 @@ export function LostObjectsSection({
             onClick={onRegister}
             className="text-xs whitespace-nowrap"
           />
-            <Button
-              label={`Ver todos (${totalPerdidos})`}
-              variant="ghost"
-              onClick={onViewAll}
-              className="text-xs"
-            />
-          
+          <Button
+            label={`Ver`}
+            variant="ghost"
+            onClick={onViewAll}
+            className="text-xs"
+          />
+
           <button
             type="button"
             onClick={onToggleExpand}
@@ -149,7 +150,7 @@ export function LostObjectsSection({
       </div>
       <div className={`md:block ${isExpanded ? 'block' : 'hidden'}`}>
         <div>
-          <h3 className="text-sm font-semibold text-charcoal-700 mb-3">Perdidos</h3>
+          <h3 className="text-sm font-semibold text-charcoal-700 mb-3">Lost Items</h3>
           {renderLostObjectsList()}
         </div>
       </div>

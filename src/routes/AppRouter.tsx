@@ -16,7 +16,11 @@ const TasksPage = lazy(() => import('@/pages/Tasks/TasksPage'))
 const RegisterPage = lazy(() => import('@/pages/Register/RegisterPage'))
 
 function PrivateRoute({ children }: { children: ReactElement }) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
+
+  if (isLoading) {
+    return <div className="flex min-h-screen items-center justify-center">Cargando...</div>
+  }
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.login} replace />

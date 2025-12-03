@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useDashboard } from '@/pages/Dashboard/useDashboard'
 
-export type RegisterTabType = 'support' | 'classroom' | 'events' | 'teachers'
+export type RegisterTabType = 'support' | 'classroom' | 'reservations' | 'teachers'
 
 export function useRegister() {
   const { user } = useDashboard()

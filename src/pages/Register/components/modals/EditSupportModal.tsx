@@ -1,19 +1,19 @@
 import { useState, FormEvent, useEffect } from 'react'
 import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
-import type { SoporteMateriaItem, SoporteTecnicoItem } from '@/services/soporteService'
+import type { SupportSubjectItem, SupportTechnicalItem } from '@/services/supportService'
 
 interface EditSupportModalProps {
   isOpen: boolean
   onClose: () => void
-  support: SoporteMateriaItem | SoporteTecnicoItem
-  type: 'materia' | 'tecnico'
+  support: SupportSubjectItem | SupportTechnicalItem
+  type: 'subject' | 'technical'
   onSubmit: (data: {
-    tipo: string
-    problema: string
-    solucion?: string
-    fecha_hora?: string
-    persona_solicitante_id?: string
+    type: string
+    problem: string
+    solution?: string
+    date_time?: string
+    requester_person_id?: string
   }) => Promise<void>
 }
 
@@ -24,38 +24,38 @@ export function EditSupportModal({
   type,
   onSubmit,
 }: EditSupportModalProps) {
-  const [problema, setProblema] = useState(support.problema || '')
-  const [solucion, setSolucion] = useState(support.solucion || '')
-  const [fechaHora, setFechaHora] = useState(
-    support.fecha_hora ? new Date(support.fecha_hora).toISOString().slice(0, 16) : ''
+  const [problem, setProblem] = useState(support.problem || '')
+  const [solution, setSolution] = useState(support.solution || '')
+  const [dateTime, setDateTime] = useState(
+    support.date_time ? new Date(support.date_time).toISOString().slice(0, 16) : ''
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (support) {
-      setProblema(support.problema || '')
-      setSolucion(support.solucion || '')
-      setFechaHora(
-        support.fecha_hora ? new Date(support.fecha_hora).toISOString().slice(0, 16) : ''
+      setProblem(support.problem || '')
+      setSolution(support.solution || '')
+      setDateTime(
+        support.date_time ? new Date(support.date_time).toISOString().slice(0, 16) : ''
       )
     }
   }, [support])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!problema.trim()) return
+    if (!problem.trim()) return
 
     setIsSubmitting(true)
     try {
       const data: any = {
-        tipo: type === 'materia' ? 'Soporte de Materia' : 'Soporte Técnico',
-        problema: problema.trim(),
-        solucion: solucion.trim() || undefined,
-        fecha_hora: fechaHora || undefined,
+        type: type === 'subject' ? 'Subject Support' : 'Technical Support',
+        problem: problem.trim(),
+        solution: solution.trim() || undefined,
+        date_time: dateTime || undefined,
       }
 
-      if (type === 'tecnico' && 'persona' in support && support.persona) {
-        data.persona_solicitante_id = String(support.persona.id)
+      if (type === 'technical' && 'person' in support && support.person) {
+        data.requester_person_id = String(support.person.id)
       }
 
       await onSubmit(data)
@@ -75,8 +75,8 @@ export function EditSupportModal({
             Problem <span className="text-primary-600">*</span>
           </label>
           <textarea
-            value={problema}
-            onChange={(e) => setProblema(e.target.value)}
+            value={problem}
+            onChange={(e) => setProblem(e.target.value)}
             placeholder="Describe the problem"
             required
             rows={4}
@@ -89,8 +89,8 @@ export function EditSupportModal({
             Solution
           </label>
           <textarea
-            value={solucion}
-            onChange={(e) => setSolucion(e.target.value)}
+            value={solution}
+            onChange={(e) => setSolution(e.target.value)}
             placeholder="Describe the solution (optional)"
             rows={4}
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 placeholder:text-charcoal-400 focus:border-primary-400 focus:outline-none"
@@ -103,8 +103,8 @@ export function EditSupportModal({
           </label>
           <input
             type="datetime-local"
-            value={fechaHora}
-            onChange={(e) => setFechaHora(e.target.value)}
+            value={dateTime}
+            onChange={(e) => setDateTime(e.target.value)}
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
           />
         </div>
@@ -120,7 +120,7 @@ export function EditSupportModal({
             type="submit"
             label="Update"
             variant="primary"
-            disabled={!problema.trim() || isSubmitting}
+            disabled={!problem.trim() || isSubmitting}
           />
         </div>
       </form>

@@ -96,7 +96,12 @@ export function useDashboard() {
       setLabState([])
       return
     }
-    const scopedLabs = labsForRole(user.role, user.labs).map(cloneLab)
+    // Map AuthUser role to RoleKey (assuming first role for now)
+    const userRole = (user.role && Array.isArray(user.role) && user.role.length > 0 ? user.role[0].name.toLowerCase() : 'alumno') as RoleKey
+    // Map AuthUser laboratory to labs array (IDs)
+    const userLabs = user.laboratory && Array.isArray(user.laboratory) ? user.laboratory.map(l => String(l.id)) : []
+
+    const scopedLabs = labsForRole(userRole, userLabs).map(cloneLab)
     setLabState(scopedLabs)
     // Todos los usuarios ven 'all' por defecto
     setSelectedLabId('all')
@@ -112,7 +117,7 @@ export function useDashboard() {
           id: randomId(),
           title: 'Revisar control de acceso',
           assigneeId: admin.id,
-          assignerId: demoLab.users[0]?.id ?? 'system',
+          assignerId: String(demoLab.users[0]?.id ?? 'system'),
           labId: demoLab.id,
           timestamp: now,
           status: 'pendiente',
@@ -123,7 +128,7 @@ export function useDashboard() {
           id: randomId(),
           title: 'Verificar stock de guantes nitrilo',
           assigneeId: aux.id,
-          assignerId: demoLab.users[0]?.id ?? 'system',
+          assignerId: String(demoLab.users[0]?.id ?? 'system'),
           labId: demoLab.id,
           timestamp: now,
           status: 'en_progreso',
@@ -132,7 +137,7 @@ export function useDashboard() {
           id: randomId(),
           title: 'Ordenar material de laboratorio',
           assigneeId: aux.id,
-          assignerId: demoLab.users[0]?.id ?? 'system',
+          assignerId: String(demoLab.users[0]?.id ?? 'system'),
           labId: demoLab.id,
           timestamp: now,
           status: 'completada',
@@ -203,7 +208,9 @@ export function useDashboard() {
     }, {})
   }, [dataset.users])
 
-  const roleInfo = user ? ROLE_DETAILS[user.role] : null
+  const roleInfo = user && user.role && Array.isArray(user.role) && user.role.length > 0
+    ? ROLE_DETAILS[(user.role[0].name.toLowerCase() as RoleKey)]
+    : null
 
   const logActivity = useCallback((message: string) => {
     const entry: ActivityItem = {
@@ -336,7 +343,7 @@ export function useDashboard() {
         id: randomId(),
         title,
         assigneeId,
-        assignerId: user.id,
+        assignerId: String(user.id),
         labId,
         timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
         status: 'pendiente' as const,

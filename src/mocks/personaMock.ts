@@ -1,77 +1,77 @@
-import type { Persona } from '@/services/personaService'
+import type { Person } from '@/services/personService'
 
 // Simular delay de red
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 // Datos mock iniciales para personas
-let mockPersonas: Persona[] = [
+let mockPersonas: Person[] = [
   {
     id: 1,
-    nombre: 'Carlos',
-    apellido: 'Rodríguez',
-    carnet: '1234567',
+    first_name: 'Carlos',
+    last_name: 'Rodríguez',
+    identity_card: '1234567',
   },
   {
     id: 2,
-    nombre: 'Ana',
-    apellido: 'Martínez',
-    carnet: '2345678',
+    first_name: 'Ana',
+    last_name: 'Martínez',
+    identity_card: '2345678',
   },
   {
     id: 3,
-    nombre: 'Juan',
-    apellido: 'Pérez',
-    carnet: '3456789',
+    first_name: 'Juan',
+    last_name: 'Pérez',
+    identity_card: '3456789',
   },
   {
     id: 4,
-    nombre: 'María',
-    apellido: 'García',
-    carnet: '4567890',
+    first_name: 'María',
+    last_name: 'García',
+    identity_card: '4567890',
   },
   {
     id: 5,
-    nombre: 'Pedro',
-    apellido: 'López',
-    carnet: '5678901',
+    first_name: 'Pedro',
+    last_name: 'López',
+    identity_card: '5678901',
   },
   {
     id: 6,
-    nombre: 'Laura',
-    apellido: 'Sánchez',
-    carnet: '6789012',
+    first_name: 'Laura',
+    last_name: 'Sánchez',
+    identity_card: '6789012',
   },
   {
     id: 7,
-    nombre: 'Roberto',
-    apellido: 'Fernández',
-    carnet: null,
+    first_name: 'Roberto',
+    last_name: 'Fernández',
+    identity_card: null,
   },
   {
     id: 8,
-    nombre: 'Carmen',
-    apellido: 'Torres',
-    carnet: '7890123',
+    first_name: 'Carmen',
+    last_name: 'Torres',
+    identity_card: '7890123',
   },
 ]
 
 export const personaMockService = {
-  getAll: (): Persona[] => {
+  getAll: (): Person[] => {
     return [...mockPersonas]
   },
 
-  search: async (query: string): Promise<Persona[]> => {
+  search: async (query: string): Promise<Person[]> => {
     await delay(300)
     if (!query || !query.trim()) {
       return []
     }
-    
+
     const searchTerm = query.toLowerCase().trim()
     return mockPersonas.filter(
-      persona =>
-        persona.nombre.toLowerCase().includes(searchTerm) ||
-        persona.apellido.toLowerCase().includes(searchTerm) ||
-        (persona.carnet && persona.carnet.toLowerCase().includes(searchTerm))
+      person =>
+        person.first_name.toLowerCase().includes(searchTerm) ||
+        person.last_name.toLowerCase().includes(searchTerm) ||
+        (person.identity_card && person.identity_card.toLowerCase().includes(searchTerm))
     )
   },
 }

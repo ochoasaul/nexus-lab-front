@@ -1,17 +1,17 @@
 import { useState, FormEvent } from 'react'
 import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
-import { useAulas } from '@/hooks/useAulas'
+import { useClassrooms } from '@/hooks/useClassrooms'
 
 interface ClassroomRegistrationModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: {
-    aula_id?: string | number
-    capacidad_alumnos: number
-    num_computadoras?: number
-    proyector_instalado: boolean
-    aire_acondicionado: boolean
+    classroom_id?: string | number
+    student_capacity: number
+    computer_count?: number
+    projector_installed: boolean
+    air_conditioning: boolean
   }) => Promise<void>
 }
 
@@ -20,26 +20,26 @@ export function ClassroomRegistrationModal({
   onClose,
   onSubmit,
 }: ClassroomRegistrationModalProps) {
-  const { aulas, isLoading: isLoadingAulas } = useAulas()
-  const [aulaId, setAulaId] = useState<string>('')
-  const [capacidadAlumnos, setCapacidadAlumnos] = useState<number>(0)
-  const [numComputadoras, setNumComputadoras] = useState<number | undefined>(undefined)
-  const [proyectorInstalado, setProyectorInstalado] = useState(false)
-  const [aireAcondicionado, setAireAcondicionado] = useState(false)
+  const { classrooms, isLoading: isLoadingClassrooms } = useClassrooms()
+  const [classroomId, setClassroomId] = useState<string>('')
+  const [studentCapacity, setStudentCapacity] = useState<number>(0)
+  const [computerCount, setComputerCount] = useState<number | undefined>(undefined)
+  const [projectorInstalled, setProjectorInstalled] = useState(false)
+  const [airConditioning, setAirConditioning] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (capacidadAlumnos <= 0) return
+    if (studentCapacity <= 0) return
 
     setIsSubmitting(true)
     try {
       await onSubmit({
-        aula_id: aulaId || undefined,
-        capacidad_alumnos: capacidadAlumnos,
-        num_computadoras: numComputadoras || undefined,
-        proyector_instalado: proyectorInstalado,
-        aire_acondicionado: aireAcondicionado,
+        classroom_id: classroomId || undefined,
+        student_capacity: studentCapacity,
+        computer_count: computerCount || undefined,
+        projector_installed: projectorInstalled,
+        air_conditioning: airConditioning,
       })
       resetForm()
     } catch (error) {
@@ -50,11 +50,11 @@ export function ClassroomRegistrationModal({
   }
 
   const resetForm = () => {
-    setAulaId('')
-    setCapacidadAlumnos(0)
-    setNumComputadoras(undefined)
-    setProyectorInstalado(false)
-    setAireAcondicionado(false)
+    setClassroomId('')
+    setStudentCapacity(0)
+    setComputerCount(undefined)
+    setProjectorInstalled(false)
+    setAirConditioning(false)
   }
 
   const handleClose = () => {
@@ -69,18 +69,18 @@ export function ClassroomRegistrationModal({
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
             Classroom
           </label>
-          {isLoadingAulas ? (
+          {isLoadingClassrooms ? (
             <p className="text-sm text-charcoal-500">Loading classrooms...</p>
           ) : (
             <select
-              value={aulaId}
-              onChange={(e) => setAulaId(e.target.value)}
+              value={classroomId}
+              onChange={(e) => setClassroomId(e.target.value)}
               className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
             >
               <option value="">Select classroom (optional)</option>
-              {aulas.map((aula) => (
-                <option key={aula.id} value={String(aula.id)}>
-                  {aula.nombre}
+              {classrooms.map((classroom) => (
+                <option key={classroom.id} value={String(classroom.id)}>
+                  {classroom.name}
                 </option>
               ))}
             </select>
@@ -93,8 +93,8 @@ export function ClassroomRegistrationModal({
           </label>
           <input
             type="number"
-            value={capacidadAlumnos}
-            onChange={(e) => setCapacidadAlumnos(parseInt(e.target.value) || 0)}
+            value={studentCapacity}
+            onChange={(e) => setStudentCapacity(parseInt(e.target.value) || 0)}
             placeholder="Enter student capacity"
             required
             min="1"
@@ -108,8 +108,8 @@ export function ClassroomRegistrationModal({
           </label>
           <input
             type="number"
-            value={numComputadoras || ''}
-            onChange={(e) => setNumComputadoras(e.target.value ? parseInt(e.target.value) : undefined)}
+            value={computerCount || ''}
+            onChange={(e) => setComputerCount(e.target.value ? parseInt(e.target.value) : undefined)}
             placeholder="Enter number of computers (optional)"
             min="0"
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 placeholder:text-charcoal-400 focus:border-primary-400 focus:outline-none"
@@ -120,8 +120,8 @@ export function ClassroomRegistrationModal({
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
-              checked={proyectorInstalado}
-              onChange={(e) => setProyectorInstalado(e.target.checked)}
+              checked={projectorInstalled}
+              onChange={(e) => setProjectorInstalled(e.target.checked)}
               className="w-5 h-5 rounded border-charcoal-300 text-primary-600 focus:ring-primary-500"
             />
             <span className="text-sm text-charcoal-700">Projector Installed</span>
@@ -130,8 +130,8 @@ export function ClassroomRegistrationModal({
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
-              checked={aireAcondicionado}
-              onChange={(e) => setAireAcondicionado(e.target.checked)}
+              checked={airConditioning}
+              onChange={(e) => setAirConditioning(e.target.checked)}
               className="w-5 h-5 rounded border-charcoal-300 text-primary-600 focus:ring-primary-500"
             />
             <span className="text-sm text-charcoal-700">Air Conditioning</span>
@@ -149,7 +149,7 @@ export function ClassroomRegistrationModal({
             type="submit"
             label="Register"
             variant="primary"
-            disabled={capacidadAlumnos <= 0 || isSubmitting}
+            disabled={studentCapacity <= 0 || isSubmitting}
           />
         </div>
       </form>

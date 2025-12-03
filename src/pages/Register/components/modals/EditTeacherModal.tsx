@@ -8,8 +8,8 @@ interface EditTeacherModalProps {
   onClose: () => void
   teacher: TeacherItem
   onSubmit: (id: string | number, data: {
-    persona_id?: string | number
-    estado?: string
+    person_id?: string | number
+    state?: string
   }) => Promise<void>
 }
 
@@ -19,12 +19,12 @@ export function EditTeacherModal({
   teacher,
   onSubmit,
 }: EditTeacherModalProps) {
-  const [estado, setEstado] = useState<string>(teacher.estado || 'activo')
+  const [state, setState] = useState<string>(teacher.state || 'active')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (teacher) {
-      setEstado(teacher.estado || 'activo')
+      setState(teacher.state || 'active')
     }
   }, [teacher])
 
@@ -34,8 +34,8 @@ export function EditTeacherModal({
     setIsSubmitting(true)
     try {
       await onSubmit(teacher.id, {
-        persona_id: teacher.persona_id || undefined,
-        estado: estado || undefined,
+        person_id: teacher.person_id || undefined,
+        state: state || undefined,
       })
     } catch (error) {
       // Error handled by parent
@@ -53,12 +53,12 @@ export function EditTeacherModal({
           </label>
           <div className="rounded-2xl border border-charcoal-200 bg-charcoal-50 px-4 py-2.5">
             <p className="text-charcoal-900">
-              {teacher.persona
-                ? `${teacher.persona.nombre} ${teacher.persona.apellido || ''}`.trim()
+              {teacher.person
+                ? `${teacher.person.first_name} ${teacher.person.last_name || ''}`.trim()
                 : 'Unassigned Teacher'}
             </p>
-            {teacher.persona?.carnet && (
-              <p className="text-xs text-charcoal-500 mt-1">ID: {teacher.persona.carnet}</p>
+            {teacher.person?.identity_card && (
+              <p className="text-xs text-charcoal-500 mt-1">ID: {teacher.person.identity_card}</p>
             )}
           </div>
         </div>
@@ -68,13 +68,13 @@ export function EditTeacherModal({
             Status
           </label>
           <select
-            value={estado}
-            onChange={(e) => setEstado(e.target.value)}
+            value={state}
+            onChange={(e) => setState(e.target.value)}
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
           >
-            <option value="activo">Active</option>
-            <option value="inactivo">Inactive</option>
-            <option value="pendiente">Pending</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
           </select>
         </div>
 

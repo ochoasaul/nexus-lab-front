@@ -1,84 +1,84 @@
 import api from './api'
 
-export interface Producto {
+export interface Product {
   id: string | number
-  nombre: string
-  descripcion?: string | null
-  codigo_base?: string | null
+  name: string
+  description?: string | null
+  base_code?: string | null
   created_at?: string | null
   updated_at?: string | null
 }
 
-export interface InventarioItem {
+export interface InventoryItem {
   id: string | number
-  cantidad: number
+  quantity: number
   created_at?: string | null
   updated_at?: string | null
-  producto_id?: string | number | null
-  laboratorio_id?: string | number | null
-  producto?: Producto | null
-  laboratorio?: {
+  product_id?: string | number | null
+  laboratory_id?: string | number | null
+  product?: Product | null
+  laboratory?: {
     id: string | number
-    nombre: string
+    name: string
   } | null
 }
 
 export interface CreateInventoryDto {
-  nombre: string
-  descripcion?: string
-  codigo_base?: string
-  cantidad: number
-  laboratorio_id?: string
+  name: string
+  description?: string
+  base_code?: string
+  quantity: number
+  laboratory_id?: string
 }
 
 export interface UpdateInventoryDto {
-  cantidad: number
+  quantity: number
 }
 
 export const inventoryService = {
-  getAll: async (laboratorioId?: string): Promise<InventarioItem[]> => {
+  getAll: async (laboratoryId?: string): Promise<InventoryItem[]> => {
     try {
-      const params = laboratorioId ? { laboratorio_id: laboratorioId } : {}
-      const { data } = await api.get<InventarioItem[]>('/inventory', { params })
+      const params = laboratoryId ? { laboratory_id: laboratoryId } : {}
+      const { data } = await api.get<InventoryItem[]>('/inventory', { params })
       return data
     } catch (error: any) {
       throw new Error(
-        error.response?.data?.message || 'Error al obtener el inventario'
+        error.response?.data?.message || 'Error getting inventory'
       )
     }
   },
 
-  searchProduct: async (query: string): Promise<Producto[]> => {
+  searchProduct: async (query: string): Promise<Product[]> => {
     try {
-      const { data } = await api.get<Producto[]>('/inventory/search-product', {
+      const { data } = await api.get<Product[]>('/inventory/search-product', {
         params: { q: query },
       })
       return data
     } catch (error: any) {
       throw new Error(
-        error.response?.data?.message || 'Error al buscar productos'
+        error.response?.data?.message || 'Error searching products'
       )
     }
   },
 
-  create: async (dto: CreateInventoryDto): Promise<InventarioItem> => {
+  create: async (dto: CreateInventoryDto): Promise<InventoryItem> => {
     try {
-      const { data } = await api.post<InventarioItem>('/inventory', dto)
+      const { data } = await api.post<InventoryItem>('/inventory', dto)
       return data
     } catch (error: any) {
       throw new Error(
-        error.response?.data?.message || 'Error al crear el inventario'
+        error.response?.data?.message || 'Error creating inventory'
       )
     }
   },
 
-  update: async (id: string | number, dto: UpdateInventoryDto): Promise<InventarioItem> => {
+  update: async (id: string | number, dto: UpdateInventoryDto): Promise<InventoryItem> => {
     try {
-      const { data } = await api.patch<InventarioItem>(`/inventory/${id}`, dto)
+      const { data } = await api.patch<InventoryItem>(`/inventory/${id}`, dto)
       return data
     } catch (error: any) {
       throw new Error(
-        error.response?.data?.message || 'Error al actualizar el inventario'
+        error.response?.data?.message || 'Error updating inventory'
       )
     }
   },
@@ -88,7 +88,7 @@ export const inventoryService = {
       await api.delete(`/inventory/${id}`)
     } catch (error: any) {
       throw new Error(
-        error.response?.data?.message || 'Error al eliminar el inventario'
+        error.response?.data?.message || 'Error deleting inventory'
       )
     }
   },

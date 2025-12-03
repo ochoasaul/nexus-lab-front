@@ -1,14 +1,14 @@
 import { useState, FormEvent, ChangeEvent, useEffect } from 'react'
 import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
-import { personaService, type Persona } from '@/services/personaService'
+import { personService, type Person } from '@/services/personService'
 
 interface TeacherRegistrationModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: {
-    persona_id?: string | number
-    estado?: string
+    person_id?: string | number
+    state?: string
   }) => Promise<void>
 }
 
@@ -18,16 +18,16 @@ export function TeacherRegistrationModal({
   onSubmit,
 }: TeacherRegistrationModalProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<Persona[]>([])
-  const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
-  const [estado, setEstado] = useState<string>('activo')
+  const [searchResults, setSearchResults] = useState<Person[]>([])
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
+  const [state, setState] = useState<string>('active')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (searchQuery.trim().length > 2) {
       const timer = setTimeout(async () => {
         try {
-          const results = await personaService.search(searchQuery)
+          const results = await personService.search(searchQuery)
           setSearchResults(results)
         } catch (error) {
           setSearchResults([])
@@ -41,13 +41,13 @@ export function TeacherRegistrationModal({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!selectedPersona) return
+    if (!selectedPerson) return
 
     setIsSubmitting(true)
     try {
       await onSubmit({
-        persona_id: selectedPersona.id,
-        estado: estado || undefined,
+        person_id: selectedPerson.id,
+        state: state || undefined,
       })
       resetForm()
     } catch (error) {
@@ -60,8 +60,8 @@ export function TeacherRegistrationModal({
   const resetForm = () => {
     setSearchQuery('')
     setSearchResults([])
-    setSelectedPersona(null)
-    setEstado('activo')
+    setSelectedPerson(null)
+    setState('active')
   }
 
   const handleClose = () => {
@@ -85,25 +85,25 @@ export function TeacherRegistrationModal({
           />
           {searchResults.length > 0 && (
             <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-charcoal-200 bg-white">
-              {searchResults.map((persona) => (
+              {searchResults.map((person) => (
                 <button
-                  key={persona.id}
+                  key={person.id}
                   type="button"
                   onClick={() => {
-                    setSelectedPersona(persona)
-                    setSearchQuery(`${persona.nombre} ${persona.apellido}`)
+                    setSelectedPerson(person)
+                    setSearchQuery(`${person.first_name} ${person.last_name}`)
                     setSearchResults([])
                   }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-charcoal-50"
                 >
-                  {persona.nombre} {persona.apellido} {persona.carnet && `(${persona.carnet})`}
+                  {person.first_name} {person.last_name} {person.identity_card && `(${person.identity_card})`}
                 </button>
               ))}
             </div>
           )}
-          {selectedPersona && (
+          {selectedPerson && (
             <p className="mt-2 text-sm text-charcoal-600">
-              Selected: {selectedPersona.nombre} {selectedPersona.apellido}
+              Selected: {selectedPerson.first_name} {selectedPerson.last_name}
             </p>
           )}
         </div>
@@ -113,13 +113,13 @@ export function TeacherRegistrationModal({
             Status
           </label>
           <select
-            value={estado}
-            onChange={(e) => setEstado(e.target.value)}
+            value={state}
+            onChange={(e) => setState(e.target.value)}
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
           >
-            <option value="activo">Active</option>
-            <option value="inactivo">Inactive</option>
-            <option value="pendiente">Pending</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
           </select>
         </div>
 
@@ -134,7 +134,7 @@ export function TeacherRegistrationModal({
             type="submit"
             label="Register"
             variant="primary"
-            disabled={!selectedPersona || isSubmitting}
+            disabled={!selectedPerson || isSubmitting}
           />
         </div>
       </form>

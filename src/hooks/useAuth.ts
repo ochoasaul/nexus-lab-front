@@ -24,10 +24,12 @@ export function useAuth() {
   }, [clearProfile])
 
   const token = authService.getToken()
+  const isLoading = useUserStore((state) => state.isLoading)
   const isAuthenticated = authService.isAuthenticated() && profile !== null
 
   return {
     isAuthenticated,
+    isLoading,
     user: profile,
     token,
     login,

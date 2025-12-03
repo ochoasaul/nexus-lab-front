@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, ChangeEvent, FormEvent } from 'react'
 import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
-import { personaService, type Persona } from '@/services/personaService'
+import { personService, type Person } from '@/services/personService'
 import { ImagePreviewModal } from './ImagePreviewModal'
 
 interface DeliverLostObjectModalProps {
@@ -9,14 +9,14 @@ interface DeliverLostObjectModalProps {
   onClose: () => void
   lostObject?: {
     id: string | number
-    objeto: string
+    object: string
     multimedia?: {
       id: string | number
-      ruta: string
-      nombre?: string | null
+      path: string
+      name?: string | null
     } | null
   } | null
-  onSubmit: (params: { persona_id: string; evidence: File }) => Promise<void>
+  onSubmit: (params: { person_id: string; evidence: File }) => Promise<void>
 }
 
 export function DeliverLostObjectModal({
@@ -26,8 +26,8 @@ export function DeliverLostObjectModal({
   onSubmit,
 }: DeliverLostObjectModalProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<Persona[]>([])
-  const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
+  const [searchResults, setSearchResults] = useState<Person[]>([])
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
   const [evidence, setEvidence] = useState<File | null>(null)
@@ -53,10 +53,10 @@ export function DeliverLostObjectModal({
       setIsSearching(true)
       setSearchError(null)
       try {
-        const results = await personaService.search(searchQuery.trim())
+        const results = await personService.search(searchQuery.trim())
         setSearchResults(results)
       } catch (error: any) {
-        setSearchError(error.message || 'Error al buscar personas')
+        setSearchError(error.message || 'Error searching for people')
       } finally {
         setIsSearching(false)
       }
@@ -88,23 +88,23 @@ export function DeliverLostObjectModal({
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    if (!selectedPersona) {
-      setFormError('Selecciona a la persona que retira el objeto')
+    if (!selectedPerson) {
+      setFormError('Select the person picking up the object')
       return
     }
     if (!evidence) {
-      setFormError('La evidencia (imagen) es obligatoria')
+      setFormError('Evidence (image) is required')
       return
     }
 
     setIsSubmitting(true)
     setFormError(null)
     try {
-      await onSubmit({ persona_id: String(selectedPersona.id), evidence })
+      await onSubmit({ person_id: String(selectedPerson.id), evidence })
       onClose()
       resetForm()
     } catch (error: any) {
-      setFormError(error.message || 'No se pudo registrar la entrega')
+      setFormError(error.message || 'Could not register delivery')
     } finally {
       setIsSubmitting(false)
     }
@@ -113,7 +113,7 @@ export function DeliverLostObjectModal({
   const resetForm = () => {
     setSearchQuery('')
     setSearchResults([])
-    setSelectedPersona(null)
+    setSelectedPerson(null)
     setEvidence(null)
     setPreviewImage(null)
     setIsSubmitting(false)
@@ -127,19 +127,19 @@ export function DeliverLostObjectModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Entregar objeto${lostObject ? `: ${lostObject.objeto}` : ''}`}
+      title={`Deliver object${lostObject ? `: ${lostObject.object}` : ''}`}
       size="lg"
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {lostObject?.multimedia?.ruta && (
+        {lostObject?.multimedia?.path && (
           <div>
             <label className="block text-sm font-medium text-charcoal-700 mb-2">
-              Foto del objeto encontrado
+              Found Object Photo
             </label>
             <div className="relative w-full rounded-2xl border border-charcoal-200 bg-charcoal-50 overflow-hidden">
               <img
-                src={lostObject.multimedia.ruta}
-                alt={lostObject.objeto}
+                src={lostObject.multimedia.path}
+                alt={lostObject.object}
                 className="w-full h-auto max-h-64 object-contain cursor-pointer"
                 onClick={() => setIsPreviewOpen(true)}
               />
@@ -149,18 +149,18 @@ export function DeliverLostObjectModal({
               className="mt-2 text-sm text-primary-600 hover:text-primary-700"
               onClick={() => setIsPreviewOpen(true)}
             >
-              Ver imagen completa
+              View full image
             </button>
           </div>
         )}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Buscar persona (nombre, apellido o carnet)
+            Search person (name, last name or ID)
           </label>
           <input
             type="text"
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
-            placeholder="Ej: Juan, Pérez, 123456"
+            placeholder="Ex: John, Doe, 123456"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
           />
@@ -170,53 +170,53 @@ export function DeliverLostObjectModal({
         </div>
 
         {isSearching && (
-          <p className="text-sm text-charcoal-500">Buscando personas...</p>
+          <p className="text-sm text-charcoal-500">Searching people...</p>
         )}
 
-        {!selectedPersona && searchResults.length > 0 && (
+        {!selectedPerson && searchResults.length > 0 && (
           <div className="rounded-2xl border border-charcoal-100 bg-charcoal-50 p-3 space-y-2 max-h-48 overflow-y-auto">
-            {searchResults.map((persona) => (
+            {searchResults.map((person) => (
               <button
                 type="button"
-                key={persona.id}
+                key={person.id}
                 className="w-full rounded-xl border border-transparent bg-white px-4 py-2 text-left text-sm text-charcoal-800 hover:border-primary-200 hover:bg-primary-25"
                 onClick={() => {
-                  setSelectedPersona(persona)
+                  setSelectedPerson(person)
                   setSearchResults([])
-                  setSearchQuery(`${persona.nombre} ${persona.apellido}`)
+                  setSearchQuery(`${person.first_name} ${person.last_name}`)
                 }}
               >
-                <span className="font-medium">{persona.nombre} {persona.apellido}</span>
-                {persona.carnet && (
-                  <span className="ml-2 text-xs text-charcoal-500">CI: {persona.carnet}</span>
+                <span className="font-medium">{person.first_name} {person.last_name}</span>
+                {person.identity_card && (
+                  <span className="ml-2 text-xs text-charcoal-500">CI: {person.identity_card}</span>
                 )}
               </button>
             ))}
           </div>
         )}
 
-        {selectedPersona && (
+        {selectedPerson && (
           <div className="rounded-2xl border border-primary-100 bg-primary-25 p-4 flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-primary-700">
-                {selectedPersona.nombre} {selectedPersona.apellido}
+                {selectedPerson.first_name} {selectedPerson.last_name}
               </p>
-              {selectedPersona.carnet && (
-                <p className="text-xs text-primary-600">CI: {selectedPersona.carnet}</p>
+              {selectedPerson.identity_card && (
+                <p className="text-xs text-primary-600">CI: {selectedPerson.identity_card}</p>
               )}
             </div>
             <Button
               type="button"
               variant="ghost"
-              label="Cambiar"
-              onClick={() => setSelectedPersona(null)}
+              label="Change"
+              onClick={() => setSelectedPerson(null)}
             />
           </div>
         )}
 
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-1">
-            Evidencia de entrega (imagen) <span className="text-primary-600">*</span>
+            Delivery Evidence (image) <span className="text-primary-600">*</span>
           </label>
           <input
             ref={fileInputRef}
@@ -235,14 +235,14 @@ export function DeliverLostObjectModal({
                   className="text-sm text-primary-600 hover:text-primary-700"
                   onClick={() => setIsPreviewOpen(true)}
                 >
-                  Ver
+                  View
                 </button>
                 <button
                   type="button"
                   className="text-sm text-red-600 hover:text-red-700"
                   onClick={resetEvidence}
                 >
-                  Quitar
+                  Remove
                 </button>
               </div>
             </div>
@@ -257,16 +257,16 @@ export function DeliverLostObjectModal({
           <Button
             type="button"
             variant="ghost"
-            label="Cancelar"
+            label="Cancel"
             onClick={onClose}
             disabled={isSubmitting}
           />
           <Button
             type="submit"
-            label="Registrar entrega"
+            label="Register Delivery"
             variant="primary"
             loading={isSubmitting}
-            isLoadingText="Guardando..."
+            isLoadingText="Saving..."
           />
         </div>
       </form>
@@ -274,8 +274,8 @@ export function DeliverLostObjectModal({
       <ImagePreviewModal
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
-        imageUrl={previewImage || lostObject?.multimedia?.ruta || ''}
-        imageName={evidence?.name || lostObject?.multimedia?.nombre || lostObject?.objeto}
+        imageUrl={previewImage || lostObject?.multimedia?.path || ''}
+        imageName={evidence?.name || lostObject?.multimedia?.name || lostObject?.object}
       />
     </Modal>
   )

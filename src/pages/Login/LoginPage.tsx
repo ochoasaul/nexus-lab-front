@@ -9,9 +9,9 @@ function LoginPage() {
     <section className="flex min-h-screen items-center justify-center px-4">
       <div className="relative w-full max-w-md">
         <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2">
-          <img 
-            src="/src/assets/Icons/LogoUtepsa.png" 
-            alt="Logo UTEPSA" 
+          <img
+            src="/src/assets/Icons/LogoUtepsa.png"
+            alt="Logo UTEPSA"
             className="h-24 w-24 object-contain"
           />
         </div>
@@ -36,9 +36,9 @@ function LoginPage() {
               Usuario
               <input
                 className="mt-2 w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-3 text-charcoal-900 placeholder:text-charcoal-400 focus:border-primary-400 focus:outline-none"
-                name="usuario"
+                name="username"
                 type="text"
-                value={values.usuario}
+                value={values.username}
                 onChange={handleChange}
                 placeholder="Ingresa tu usuario"
                 required
@@ -48,9 +48,9 @@ function LoginPage() {
               Contraseña
               <input
                 className="mt-2 w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-3 text-charcoal-900 placeholder:text-charcoal-400 focus:border-primary-400 focus:outline-none"
-                name="clave"
+                name="password"
                 type="password"
-                value={values.clave}
+                value={values.password}
                 onChange={handleChange}
                 placeholder="Ingresa tu contraseña"
                 required

@@ -7,67 +7,67 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 let mockTeachers: TeacherItem[] = [
   {
     id: 1,
-    estado: 'activo',
-    persona_id: 1,
+    state: 'active',
+    person_id: 1,
     created_at: '2025-01-10T08:00:00Z',
     updated_at: '2025-01-10T08:00:00Z',
-    persona: {
+    person: {
       id: 1,
-      nombre: 'Juan',
-      apellido: 'Pérez',
-      carnet: '1234567',
+      first_name: 'Juan',
+      last_name: 'Pérez',
+      identity_card: '1234567',
     },
   },
   {
     id: 2,
-    estado: 'activo',
-    persona_id: 2,
+    state: 'active',
+    person_id: 2,
     created_at: '2025-01-11T09:00:00Z',
     updated_at: '2025-01-11T09:00:00Z',
-    persona: {
+    person: {
       id: 2,
-      nombre: 'María',
-      apellido: 'García',
-      carnet: '2345678',
+      first_name: 'María',
+      last_name: 'García',
+      identity_card: '2345678',
     },
   },
   {
     id: 3,
-    estado: 'inactivo',
-    persona_id: 3,
+    state: 'inactive',
+    person_id: 3,
     created_at: '2025-01-12T10:00:00Z',
     updated_at: '2025-01-12T10:00:00Z',
-    persona: {
+    person: {
       id: 3,
-      nombre: 'Carlos',
-      apellido: 'López',
-      carnet: '3456789',
+      first_name: 'Carlos',
+      last_name: 'López',
+      identity_card: '3456789',
     },
   },
   {
     id: 4,
-    estado: 'activo',
-    persona_id: 4,
+    state: 'active',
+    person_id: 4,
     created_at: '2025-01-13T11:00:00Z',
     updated_at: '2025-01-13T11:00:00Z',
-    persona: {
+    person: {
       id: 4,
-      nombre: 'Ana',
-      apellido: 'Martínez',
-      carnet: '4567890',
+      first_name: 'Ana',
+      last_name: 'Martínez',
+      identity_card: '4567890',
     },
   },
   {
     id: 5,
-    estado: 'activo',
-    persona_id: 5,
+    state: 'active',
+    person_id: 5,
     created_at: '2025-01-14T12:00:00Z',
     updated_at: '2025-01-14T12:00:00Z',
-    persona: {
+    person: {
       id: 5,
-      nombre: 'Pedro',
-      apellido: 'Rodríguez',
-      carnet: null,
+      first_name: 'Pedro',
+      last_name: 'Rodríguez',
+      identity_card: null,
     },
   },
 ]
@@ -91,40 +91,40 @@ export const teacherMockService = {
 
   create: async (data: any): Promise<TeacherItem> => {
     await delay(800)
-    // Buscar la persona en el mock de personas si existe
-    const personaId = data.persona_id ? Number(data.persona_id) : null
-    let personaInfo = null
-    
-    if (personaId) {
-      // Obtener información de la persona desde el mock
+    // Find person in person mock if exists
+    const personId = data.person_id ? Number(data.person_id) : null
+    let personInfo = null
+
+    if (personId) {
+      // Get person info from mock
       const { personaMockService } = await import('./personaMock')
       const personas = personaMockService.getAll()
-      const foundPersona = personas.find(p => p.id === personaId)
-      if (foundPersona) {
-        personaInfo = {
-          id: foundPersona.id,
-          nombre: foundPersona.nombre,
-          apellido: foundPersona.apellido,
-          carnet: foundPersona.carnet || null,
+      const foundPerson = personas.find(p => p.id === personId)
+      if (foundPerson) {
+        personInfo = {
+          id: foundPerson.id,
+          first_name: foundPerson.first_name,
+          last_name: foundPerson.last_name,
+          identity_card: foundPerson.identity_card || null,
         }
       } else {
-        // Si no se encuentra, usar valores por defecto
-        personaInfo = {
-          id: personaId,
-          nombre: 'Persona',
-          apellido: 'Registrada',
-          carnet: null,
+        // If not found, use default values
+        personInfo = {
+          id: personId,
+          first_name: 'Person',
+          last_name: 'Registered',
+          identity_card: null,
         }
       }
     }
-    
+
     const newItem: TeacherItem = {
       id: nextId++,
-      estado: data.estado || 'activo',
-      persona_id: personaId,
+      state: data.state || 'active',
+      person_id: personId,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      persona: personaInfo,
+      person: personInfo,
     }
     mockTeachers.push(newItem)
     return newItem

@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useDashboard } from '@/pages/Dashboard/useDashboard'
-import { lostObjectService, type LostObjectItem } from '@/services/lostObjectService'
-import { useAulas } from '@/hooks/useAulas'
+import { lostObjectService, type LostObjectItem, LostObjectState } from '@/services/lostObjectService'
+import { useClassrooms } from '@/hooks/useClassrooms'
 import { useLostObjects } from '@/hooks/useLostObjects'
 import { useToastStore } from '@/store/toastStore'
 import { type LostObjectFormData } from './components/modals/LostObjectModal'
@@ -26,35 +26,35 @@ export function useReports() {
     lostObjects: false,
   })
   const addToast = useToastStore((state) => state.addToast)
-  
+
   const currentMonth = new Date().toISOString().slice(0, 7)
   const { lostObjects, isLoading: isLoadingLostObjects, error: lostObjectsError, refetch: refetchLostObjects } = useLostObjects(currentMonth)
-  const { aulas, isLoading: isLoadingAulas, error: aulasError } = useAulas()
+  const { classrooms, isLoading: isLoadingClassrooms, error: classroomsError } = useClassrooms()
 
-  // Filtrar solo objetos con estado "Perdido" y ordenar por fecha (más recientes primero)
-  const perdidos = useMemo(() => {
-    const filtered = lostObjects.filter(obj => obj.estado === 'Perdido')
-    const sortByDate = (a: LostObjectItem, b: LostObjectItem) => 
+  // Filter only "Lost" objects and sort by date (newest first)
+  const lostItems = useMemo(() => {
+    const filtered = lostObjects.filter(obj => obj.state === LostObjectState.Perdido)
+    const sortByDate = (a: LostObjectItem, b: LostObjectItem) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     return filtered.sort(sortByDate).slice(0, 4)
   }, [lostObjects])
 
-  // Contar totales
-  const totalPerdidos = useMemo(() => lostObjects.filter(o => o.estado === 'Perdido').length, [lostObjects])
+  // Count totals
+  const totalLostItems = useMemo(() => lostObjects.filter(o => o.state === LostObjectState.Perdido).length, [lostObjects])
   const totalLostObjects = useMemo(() => lostObjects.length, [lostObjects])
 
-  // Preparar aulas desde el backend
-  const aulasFormatted = useMemo(() => 
-    aulas.map((aula) => ({
-      id: aula.id,
-      nombre: aula.nombre,
-    })), [aulas]
+  // Prepare classrooms from backend
+  const classroomsFormatted = useMemo(() =>
+    classrooms.map((classroom) => ({
+      id: classroom.id,
+      name: classroom.name,
+    })), [classrooms]
   )
 
-  // Filtrar objetos para el modal según el estado seleccionado
+  // Filter objects for modal based on selected state
   const filteredObjectsForModal = useMemo(() => {
     if (modalFilterState === 'all') return lostObjects
-    return lostObjects.filter(obj => obj.estado === modalFilterState)
+    return lostObjects.filter(obj => obj.state === modalFilterState)
   }, [lostObjects, modalFilterState])
 
   const handleLostObjectSubmit = useCallback(async (data: LostObjectFormData) => {
@@ -65,10 +65,10 @@ export function useReports() {
     try {
       await lostObjectService.create(
         {
-          objeto: data.objeto,
-          fecha_encontrado: data.fecha_encontrado || undefined,
-          horario_encontrado: data.horario_encontrado || undefined,
-          aula_id: data.aula_id || undefined,
+          object: data.object,
+          found_date: data.date_found || undefined,
+          found_schedule: data.time_found || undefined,
+          classroom_id: data.classroom_id || undefined,
         },
         data.multimedia
       )
@@ -83,12 +83,15 @@ export function useReports() {
     }
   }, [refetchLostObjects, addToast])
 
-  const handleDeliverLostObject = useCallback(async ({ persona_id, evidence }: { persona_id: string; evidence: File }) => {
-    if (!selectedLostObject) {
-      throw new Error('No hay un objeto seleccionado')
-    }
+  const handleDeliverLostObject = useCallback(async (params: { person_id: string; evidence: File }) => {
+    if (!selectedLostObject) return
+
     try {
-      await lostObjectService.deliver(selectedLostObject.id, { persona_id }, evidence)
+      await lostObjectService.deliver(
+        selectedLostObject.id,
+        { person_id: params.person_id },
+        params.evidence
+      )
       await refetchLostObjects()
       setIsDeliverModalOpen(false)
       setIsAllLostObjectsModalOpen(false)
@@ -101,23 +104,23 @@ export function useReports() {
     }
   }, [selectedLostObject, refetchLostObjects, addToast])
 
-  const handleMoveAllToPorteria = useCallback(() => {
-    if (totalPerdidos === 0) {
-      addToast('No hay objetos perdidos para mover', 'info')
+  const handleMoveAllToReception = useCallback(() => {
+    if (totalLostItems === 0) {
+      addToast('No lost objects to move', 'info')
       return
     }
     setIsConfirmMoveModalOpen(true)
-  }, [totalPerdidos, addToast])
+  }, [totalLostItems, addToast])
 
-  const confirmMoveAllToPorteria = useCallback(async () => {
+  const confirmMoveAllToReception = useCallback(async () => {
     setIsConfirmMoveModalOpen(false)
     setIsMovingToPorteria(true)
     try {
-      const result = await lostObjectService.moveAllPerdidosToPorteria()
+      const result = await lostObjectService.moveAllLostToReception()
       await refetchLostObjects()
-      addToast(`${result.updated} objetos movidos a portería exitosamente`, 'success')
+      addToast(`${result.updated} objects moved to reception successfully`, 'success')
     } catch (error: any) {
-      const errorMessage = error.message || 'Error al mover objetos a portería'
+      const errorMessage = error.message || 'Error moving objects to reception'
       addToast(errorMessage, 'error')
     } finally {
       setIsMovingToPorteria(false)
@@ -126,11 +129,11 @@ export function useReports() {
 
   const getImageUrl = useCallback((lostObject: LostObjectItem | null): string | null => {
     if (!lostObject) return null
-    if ((lostObject.estado === 'Perdido' || lostObject.estado === 'Porteria') && lostObject.multimedia?.ruta) {
-      return lostObject.multimedia.ruta
+    if ((lostObject.state === LostObjectState.Perdido || lostObject.state === LostObjectState.Porteria) && lostObject.multimedia?.path) {
+      return lostObject.multimedia.path
     }
-    if (lostObject.estado === 'Entregado' && lostObject.entrega_objeto?.[0]?.multimedia?.ruta) {
-      return lostObject.entrega_objeto[0].multimedia.ruta
+    if (lostObject.state === LostObjectState.Entregado && lostObject.object_delivery?.[0]?.multimedia?.path) {
+      return lostObject.object_delivery[0].multimedia.path
     }
     return null
   }, [])
@@ -153,15 +156,15 @@ export function useReports() {
   return {
     user,
     // Data
-    perdidos,
-    totalPerdidos,
+    lostItems,
+    totalLostItems,
     totalLostObjects,
     lostObjects,
     isLoadingLostObjects,
     lostObjectsError,
-    aulasFormatted,
-    isLoadingAulas,
-    aulasError,
+    classroomsFormatted,
+    isLoadingClassrooms,
+    classroomsError,
     filteredObjectsForModal,
     currentMonth,
     // Modal states
@@ -183,8 +186,8 @@ export function useReports() {
     // Handlers
     handleLostObjectSubmit,
     handleDeliverLostObject,
-    handleMoveAllToPorteria,
-    confirmMoveAllToPorteria,
+    handleMoveAllToReception,
+    confirmMoveAllToReception,
     getImageUrl,
     handleOpenAllModal,
     handleDeliverFromModal,

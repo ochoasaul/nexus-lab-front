@@ -3,49 +3,47 @@ import Button from '@/components/ui/Button/Button'
 import { LoanIcon, SupportIcon, InventoryIcon, CalendarIcon } from '@/components/icons/Icons'
 import { Panel } from './Panel'
 import { useDashboard } from '@/pages/Dashboard/useDashboard'
-import { SoporteModal } from '@/pages/Register/components/modals/SoporteModal'
+import { SupportModal } from '@/pages/Register/components/modals/SoporteModal'
 import { LostObjectModal, type LostObjectFormData } from '@/pages/Reports/components/modals/LostObjectModal'
-import { soporteService } from '@/services/soporteService'
+import { supportService } from '@/services/supportService'
 import { lostObjectService } from '@/services/lostObjectService'
-import { useAulas } from '@/hooks/useAulas'
+import { useClassrooms } from '@/hooks/useClassrooms'
 import { useLostObjects } from '@/hooks/useLostObjects'
 import { useToastStore } from '@/store/toastStore'
 
 export function QuickActions() {
   const { simulateInventoryAudit, simulateReservation } = useDashboard()
-  const [isSoporteModalOpen, setIsSoporteModalOpen] = useState(false)
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
   const [isLostObjectModalOpen, setIsLostObjectModalOpen] = useState(false)
   const addToast = useToastStore((state) => state.addToast)
-  
+
   const currentMonth = new Date().toISOString().slice(0, 7)
   const { refetch: refetchLostObjects } = useLostObjects(currentMonth)
-  const { aulas, isLoading: isLoadingAulas, error: aulasError } = useAulas()
+  const { classrooms, isLoading: isLoadingClassrooms, error: classroomsError } = useClassrooms()
 
-  const handleSoporteSubmit = async (data: {
-    tipo: 'materia' | 'tecnico'
-    problema: string
-    solucion?: string
-    fecha_hora?: string
-    persona_solicitante_id?: string
+  const handleSupportSubmit = async (data: {
+    type: 'subject' | 'technical'
+    problem: string
+    solution?: string
+    date_time?: string
+    requester_person_id?: string
   }) => {
     try {
-      if (data.tipo === 'materia') {
-        await soporteService.createMateria({
-          problema: data.problema,
-          solucion: data.solucion,
-          fecha_hora: data.fecha_hora,
-          tipo: 'Soporte de Materia',
+      if (data.type === 'subject') {
+        await supportService.createSubject({
+          problem: data.problem,
+          solution: data.solution,
+          date_time: data.date_time,
         })
-        addToast('Soporte de materia registrado exitosamente', 'success')
+        addToast('Subject support registered successfully', 'success')
       } else {
-        await soporteService.createTecnico({
-          problema: data.problema,
-          solucion: data.solucion,
-          fecha_hora: data.fecha_hora,
-          persona_solicitante_id: data.persona_solicitante_id,
-          tipo: 'Soporte Técnico',
+        await supportService.createTechnical({
+          problem: data.problem,
+          solution: data.solution,
+          date_time: data.date_time,
+          requester_person_id: data.requester_person_id,
         })
-        addToast('Soporte técnico registrado exitosamente', 'success')
+        addToast('Technical support registered successfully', 'success')
       }
     } catch (error: any) {
       const errorMessage = error.message || 'Error al registrar el soporte'
@@ -62,10 +60,10 @@ export function QuickActions() {
     try {
       await lostObjectService.create(
         {
-          objeto: data.objeto,
-          fecha_encontrado: data.fecha_encontrado || undefined,
-          horario_encontrado: data.horario_encontrado || undefined,
-          aula_id: data.aula_id || undefined,
+          object: data.object,
+          found_date: data.date_found || undefined,
+          found_schedule: data.time_found || undefined,
+          classroom_id: data.classroom_id || undefined,
         },
         data.multimedia
       )
@@ -80,55 +78,55 @@ export function QuickActions() {
     }
   }
 
-  const aulasFormatted = aulas.map((aula) => ({
-    id: aula.id,
-    nombre: aula.nombre,
+  const classroomsFormatted = classrooms.map((classroom) => ({
+    id: classroom.id,
+    name: classroom.name,
   }))
 
   return (
     <>
       <Panel title="Acciones rápidas">
         <div className="flex flex-wrap gap-3">
-          <Button 
-            label="Registro de préstamos" 
-            variant="primary" 
-            onClick={simulateInventoryAudit} 
-            Icon={LoanIcon} 
+          <Button
+            label="Registro de préstamos"
+            variant="primary"
+            onClick={simulateInventoryAudit}
+            Icon={LoanIcon}
           />
-          <Button 
-            label="Registro de Soporte" 
-            variant="secondary" 
-            onClick={() => setIsSoporteModalOpen(true)} 
-            Icon={SupportIcon} 
+          <Button
+            label="Support Registration"
+            variant="secondary"
+            onClick={() => setIsSupportModalOpen(true)}
+            Icon={SupportIcon}
           />
-          <Button 
-            label="Registro de Objetos perdidos" 
-            variant="ghost" 
-            onClick={() => setIsLostObjectModalOpen(true)} 
-            Icon={InventoryIcon} 
+          <Button
+            label="Registro de Objetos perdidos"
+            variant="ghost"
+            onClick={() => setIsLostObjectModalOpen(true)}
+            Icon={InventoryIcon}
           />
-          <Button 
-            label="Registro de Reservas" 
-            variant="ghost" 
-            onClick={simulateReservation} 
-            Icon={CalendarIcon} 
+          <Button
+            label="Registro de Reservas"
+            variant="ghost"
+            onClick={simulateReservation}
+            Icon={CalendarIcon}
           />
         </div>
       </Panel>
 
-      <SoporteModal
-        isOpen={isSoporteModalOpen}
-        onClose={() => setIsSoporteModalOpen(false)}
-        onSubmit={handleSoporteSubmit}
+      <SupportModal
+        isOpen={isSupportModalOpen}
+        onClose={() => setIsSupportModalOpen(false)}
+        onSubmit={handleSupportSubmit}
       />
 
       <LostObjectModal
         isOpen={isLostObjectModalOpen}
         onClose={() => setIsLostObjectModalOpen(false)}
         onSubmit={handleLostObjectSubmit}
-        aulas={aulasFormatted}
-        isLoadingAulas={isLoadingAulas}
-        aulasError={aulasError}
+        classrooms={classroomsFormatted}
+        isLoadingClassrooms={isLoadingClassrooms}
+        classroomsError={classroomsError}
       />
     </>
   )

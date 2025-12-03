@@ -1,13 +1,13 @@
 import { useState, FormEvent, useEffect } from 'react'
 import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
-import { type InventarioItem, type UpdateInventoryDto } from '@/services/inventoryService'
+import { type InventoryItem, type UpdateInventoryDto } from '@/services/inventoryService'
 
 interface EditInventoryModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (id: string | number, data: UpdateInventoryDto) => Promise<void>
-  inventoryItem: InventarioItem | null
+  inventoryItem: InventoryItem | null
 }
 
 export function EditInventoryModal({
@@ -16,13 +16,13 @@ export function EditInventoryModal({
   onSubmit,
   inventoryItem,
 }: EditInventoryModalProps) {
-  const [cantidad, setCantidad] = useState<number>(0)
+  const [quantity, setQuantity] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (inventoryItem) {
-      setCantidad(inventoryItem.cantidad)
+      setQuantity(inventoryItem.quantity)
     }
   }, [inventoryItem, isOpen])
 
@@ -32,17 +32,17 @@ export function EditInventoryModal({
 
     if (!inventoryItem) return
 
-    if (cantidad < 0) {
-      setError('La cantidad no puede ser negativa')
+    if (quantity < 0) {
+      setError('Quantity cannot be negative')
       return
     }
 
     setIsSubmitting(true)
     try {
-      await onSubmit(inventoryItem.id, { cantidad })
+      await onSubmit(inventoryItem.id, { quantity })
       onClose()
     } catch (err: any) {
-      setError(err.message || 'Error al actualizar el inventario')
+      setError(err.message || 'Error updating inventory')
     } finally {
       setIsSubmitting(false)
     }
@@ -59,30 +59,30 @@ export function EditInventoryModal({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Editar inventario"
+      title="Edit Inventory"
       size="md"
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="rounded-2xl border border-charcoal-200 bg-charcoal-50 p-4">
-          <p className="text-sm font-medium text-charcoal-700 mb-1">Producto</p>
+          <p className="text-sm font-medium text-charcoal-700 mb-1">Product</p>
           <p className="text-lg font-semibold text-charcoal-900">
-            {inventoryItem.producto?.nombre || 'Sin nombre'}
+            {inventoryItem.product?.name || 'No name'}
           </p>
-          {inventoryItem.producto?.codigo_base && (
+          {inventoryItem.product?.base_code && (
             <p className="text-xs text-charcoal-500 mt-1">
-              Código: {inventoryItem.producto.codigo_base}
+              Code: {inventoryItem.product.base_code}
             </p>
           )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Cantidad <span className="text-primary-600">*</span>
+            Quantity <span className="text-primary-600">*</span>
           </label>
           <input
             type="number"
-            value={cantidad}
-            onChange={(e) => setCantidad(parseInt(e.target.value) || 0)}
+            value={quantity}
+            onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
             min="0"
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
             required
@@ -95,16 +95,16 @@ export function EditInventoryModal({
           <Button
             type="button"
             variant="ghost"
-            label="Cancelar"
+            label="Cancel"
             onClick={handleClose}
             disabled={isSubmitting}
           />
           <Button
             type="submit"
-            label="Guardar cambios"
+            label="Save Changes"
             variant="primary"
             loading={isSubmitting}
-            isLoadingText="Guardando..."
+            isLoadingText="Saving..."
           />
         </div>
       </form>

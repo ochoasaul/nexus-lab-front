@@ -5,13 +5,13 @@ import Button from '@/components/ui/Button/Button'
 import { HomeIcon, InventoryIcon, UsersIcon, ReportIcon, CalendarIcon, LogoutIcon, RegisterIcon } from '@/components/icons/Icons'
 
 const navItems = [
-  { id: 'overview', label: 'Panel principal', href: '/dashboard', Icon: HomeIcon },
-  { id: 'schedules', label: 'Horarios', href: '/schedules', Icon: CalendarIcon },
-  { id: 'tasks', label: 'Tareas', href: '/tasks', Icon: ReportIcon },
-  { id: 'inventory', label: 'Inventario', href: '/inventory', Icon: InventoryIcon },
-  { id: 'reports', label: 'Reportes', href: '/reports', Icon: ReportIcon },
-  { id: 'users', label: 'Usuarios', href: '/users', Icon: UsersIcon },
-  { id: 'register', label: 'Registro', href: '/register', Icon: RegisterIcon },
+  { id: 'overview', label: 'Dashboard', href: '/dashboard', Icon: HomeIcon },
+  { id: 'schedules', label: 'Schedules', href: '/schedules', Icon: CalendarIcon },
+  { id: 'tasks', label: 'Tasks', href: '/tasks', Icon: ReportIcon },
+  { id: 'inventory', label: 'Inventory', href: '/inventory', Icon: InventoryIcon },
+  { id: 'reports', label: 'Reports', href: '/reports', Icon: ReportIcon },
+  { id: 'users', label: 'Users', href: '/users', Icon: UsersIcon },
+  { id: 'register', label: 'Register', href: '/register', Icon: RegisterIcon },
 ]
 
 export function Sidebar() {
@@ -48,7 +48,7 @@ export function Sidebar() {
       <aside className={`sidebar ${isMobileMenuOpen ? 'mobile-sidebar-open' : ''}`}>
         <Link to="/" className="brand" onClick={() => setIsMobileMenuOpen(false)}>
           NexusLab
-          <span className="brand-sub">Control de laboratorios</span>
+          <span className="brand-sub">Laboratory Control</span>
         </Link>
         <div className="mt-8 flex-1 space-y-1">
           {navItems.map((item) => {
@@ -69,19 +69,19 @@ export function Sidebar() {
           })}
         </div>
         <div className="session-card">
-          <p className="session-title">Sesión</p>
+          <p className="session-title">Session</p>
           <p className="mt-1">
-            {user?.persona && Array.isArray(user.persona) && user.persona.length > 0
-              ? `${user.persona[0].nombre} ${user.persona[0].apellido || ''}`.trim() || user.usuario
-              : user?.usuario || 'Invitado'}
+            {user?.person && Array.isArray(user.person) && user.person.length > 0
+              ? `${user.person[0].first_name} ${user.person[0].last_name || ''}`.trim() || user.username
+              : user?.username || 'Guest'}
           </p>
           <span className="text-primary-600">
-            {user?.rol && Array.isArray(user.rol) && user.rol.length > 0
-              ? user.rol[0].nombre
-              : 'sin rol'}
+            {user?.role && Array.isArray(user.role) && user.role.length > 0
+              ? user.role[0].name
+              : 'no role'}
           </span>
           <div className="mt-3">
-            <Button label="Cerrar sesión" variant="ghost" onClick={logout} Icon={LogoutIcon} />
+            <Button label="Logout" variant="ghost" onClick={logout} Icon={LogoutIcon} />
           </div>
         </div>
       </aside>
