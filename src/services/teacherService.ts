@@ -1,5 +1,5 @@
-// import api from './api'
-import { teacherMockService } from '@/mocks/teacherMock'
+import api from './api'
+// import { teacherMockService } from '@/mocks/teacherMock'
 
 export interface CreateTeacherDto {
   person_id?: string | number
@@ -25,13 +25,15 @@ export interface TeacherItem {
   } | null
 }
 
-// Usando datos mock - cambiar a api cuando el backend esté listo
+export type Teacher = TeacherItem
+
+
+// Using mock data - switch to api when backend is ready
 export const teacherService = {
   create: async (data: CreateTeacherDto): Promise<TeacherItem> => {
     try {
-      // const { data: response } = await api.post<TeacherItem>('/teacher', data)
-      // return response
-      return await teacherMockService.create(data)
+      const { data: response } = await api.post<TeacherItem>('/teacher', data)
+      return response
     } catch (error: any) {
       throw new Error(
         error.message || 'Error registering teacher'
@@ -41,9 +43,8 @@ export const teacherService = {
 
   update: async (id: string | number, data: UpdateTeacherDto): Promise<TeacherItem> => {
     try {
-      // const { data: response } = await api.patch<TeacherItem>(`/teacher/${id}`, data)
-      // return response
-      return await teacherMockService.update(id, data)
+      const { data: response } = await api.patch<TeacherItem>(`/teacher/${id}`, data)
+      return response
     } catch (error: any) {
       throw new Error(
         error.message || 'Error updating teacher'
@@ -53,9 +54,8 @@ export const teacherService = {
 
   getAll: async (): Promise<TeacherItem[]> => {
     try {
-      // const { data } = await api.get<TeacherItem[]>('/teacher')
-      // return data
-      return await teacherMockService.getAll()
+      const { data } = await api.get<TeacherItem[]>('/teacher')
+      return data
     } catch (error: any) {
       throw new Error(
         error.message || 'Error getting teachers'
@@ -65,9 +65,8 @@ export const teacherService = {
 
   getById: async (id: string | number): Promise<TeacherItem> => {
     try {
-      // const { data } = await api.get<TeacherItem>(`/teacher/${id}`)
-      // return data
-      return await teacherMockService.getById(id)
+      const { data } = await api.get<TeacherItem>(`/teacher/${id}`)
+      return data
     } catch (error: any) {
       throw new Error(
         error.message || 'Error getting teacher'
@@ -77,11 +76,24 @@ export const teacherService = {
 
   remove: async (id: string | number): Promise<void> => {
     try {
-      // await api.delete(`/teacher/${id}`)
-      await teacherMockService.remove(id)
+      await api.delete(`/teacher/${id}`)
     } catch (error: any) {
       throw new Error(
         error.message || 'Error deleting teacher'
+      )
+    }
+  },
+
+  search: async (query: string, page: number = 1, pageSize: number = 20): Promise<TeacherItem[]> => {
+    if (!query.trim()) return []
+    try {
+      const { data } = await api.get<TeacherItem[]>('/teacher/search', {
+        params: { q: query, page, pageSize },
+      })
+      return data
+    } catch (error: any) {
+      throw new Error(
+        error.message || 'Error searching teachers'
       )
     }
   },

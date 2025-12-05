@@ -45,16 +45,6 @@ function RegisterPage() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('reservations')}
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'reservations'
-                ? 'border-primary-500 text-primary-700'
-                : 'border-transparent text-charcoal-500 hover:text-charcoal-700'
-                }`}
-            >
-              Reservations Registration
-            </button>
-            <button
-              type="button"
               onClick={() => setActiveTab('teachers')}
               className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'teachers'
                 ? 'border-primary-500 text-primary-700'

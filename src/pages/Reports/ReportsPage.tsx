@@ -4,6 +4,7 @@ import { DeliverLostObjectModal } from './components/modals/DeliverLostObjectMod
 import { AllLostObjectsModal } from './components/modals/AllLostObjectsModal'
 import { ImagePreviewModal } from './components/modals/ImagePreviewModal'
 import { ConfirmMoveToReceptionModal } from './components/modals/ConfirmMoveToReceptionModal'
+import { CreateReservationModal } from './components/modals/CreateReservationModal'
 import { useReports } from './useReports'
 import { useDashboard } from '@/pages/Dashboard/useDashboard'
 import { ReportsSection } from './components/ReportsSection'
@@ -36,12 +37,15 @@ function ReportsPage() {
     setIsViewImageModalOpen,
     isConfirmMoveModalOpen,
     setIsConfirmMoveModalOpen,
+    isReservationModalOpen,
+    setIsReservationModalOpen,
     selectedLostObject,
     setSelectedLostObject,
     modalFilterState,
     isMovingToPorteria,
     expandedSections,
     handleLostObjectSubmit,
+    handleReservationSubmit,
     handleDeliverLostObject,
     handleMoveAllToReception,
     confirmMoveAllToReception,
@@ -51,6 +55,9 @@ function ReportsPage() {
     toggleSection,
     simulateReservation,
     simulateLostObject,
+    formattedReservations,
+    reservations,
+    refetchReservations,
   } = useReports()
 
   if (!user) {
@@ -73,14 +80,16 @@ function ReportsPage() {
               onViewAll={() => handleOpenAllModal('all')}
               isExpanded={expandedSections.reports}
               onToggleExpand={() => toggleSection('reports')}
+              onView={(report) => alert(`Reporte: ${report.title}\nDetalles: ${report.details}\nEstado: ${report.status}`)}
             />
 
             <ReservationsSection
-              reservations={dataset.reservations}
-              onNewReservation={simulateReservation}
+              reservations={reservations}
+              onNewReservation={() => setIsReservationModalOpen(true)}
               onViewAll={() => handleOpenAllModal('all')}
               isExpanded={expandedSections.reservations}
               onToggleExpand={() => toggleSection('reservations')}
+              onRefresh={refetchReservations}
             />
 
             <LostObjectsSection
@@ -114,6 +123,13 @@ function ReportsPage() {
           classrooms={classroomsFormatted}
           isLoadingClassrooms={isLoadingClassrooms}
           classroomsError={classroomsError}
+        />
+
+        <CreateReservationModal
+          isOpen={isReservationModalOpen}
+          onClose={() => setIsReservationModalOpen(false)}
+          onSubmit={handleReservationSubmit}
+          classrooms={classroomsFormatted}
         />
 
         <DeliverLostObjectModal

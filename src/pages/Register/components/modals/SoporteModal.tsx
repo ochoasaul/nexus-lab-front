@@ -35,10 +35,10 @@ export function SupportModal({
     const timeout = setTimeout(async () => {
       setIsSearching(true)
       try {
-        const results = await personService.search(searchQuery.trim())
+        const results = await personService.search(searchQuery.trim(), 1, 20)
         setSearchResults(results)
       } catch (err: any) {
-        console.error('Error al buscar personas:', err)
+        console.error('Error searching persons:', err)
       } finally {
         setIsSearching(false)
       }
@@ -56,12 +56,12 @@ export function SupportModal({
     setError(null)
 
     if (!problem.trim()) {
-      setError('El problema es requerido')
+      setError('Problem is required')
       return
     }
 
     if (!selectedPerson) {
-      setError('Debes seleccionar una persona solicitante')
+      setError('You must select a requester')
       return
     }
 
@@ -101,14 +101,14 @@ export function SupportModal({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Registrar Soporte"
+      title="Register Support"
       size="lg"
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* Fecha y hora */}
+        {/* Date and Time */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Fecha y hora
+            Date and Time
           </label>
           <input
             type="datetime-local"
@@ -118,39 +118,39 @@ export function SupportModal({
           />
         </div>
 
-        {/* Problema */}
+        {/* Problem */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Problema <span className="text-primary-600">*</span>
+            Problem <span className="text-primary-600">*</span>
           </label>
           <textarea
             value={problem}
             onChange={(e) => setProblem(e.target.value)}
             rows={4}
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none resize-none"
-            placeholder="Describe el problema..."
+            placeholder="Describe the problem..."
             required
           />
         </div>
 
-        {/* Solución */}
+        {/* Solution */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Solución
+            Solution
           </label>
           <textarea
             value={solution}
             onChange={(e) => setSolution(e.target.value)}
             rows={3}
             className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none resize-none"
-            placeholder="Describe la solución aplicada..."
+            placeholder="Describe the applied solution..."
           />
         </div>
 
-        {/* Persona solicitante */}
+        {/* Requester */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Solicitante <span className="text-primary-600">*</span>
+            Requester <span className="text-primary-600">*</span>
           </label>
           {!selectedPerson ? (
             <>
@@ -159,10 +159,10 @@ export function SupportModal({
                 value={searchQuery}
                 onChange={handleSearchChange}
                 className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
-                placeholder="Buscar persona (nombre, apellido o carnet)..."
+                placeholder="Search person (name, last name or ID)..."
               />
               {isSearching && (
-                <p className="mt-2 text-sm text-charcoal-500">Buscando...</p>
+                <p className="mt-2 text-sm text-charcoal-500">Searching...</p>
               )}
               {searchResults.length > 0 && (
                 <div className="mt-2 rounded-2xl border border-charcoal-100 bg-charcoal-50 p-3 space-y-2 max-h-48 overflow-y-auto">
@@ -179,7 +179,7 @@ export function SupportModal({
                     >
                       <span className="font-medium">{person.first_name} {person.last_name}</span>
                       {person.identity_card && (
-                        <span className="ml-2 text-xs text-charcoal-500">CI: {person.identity_card}</span>
+                        <span className="ml-2 text-xs text-charcoal-500">ID: {person.identity_card}</span>
                       )}
                     </button>
                   ))}
@@ -193,13 +193,13 @@ export function SupportModal({
                   {selectedPerson.first_name} {selectedPerson.last_name}
                 </p>
                 {selectedPerson.identity_card && (
-                  <p className="text-xs text-primary-600">CI: {selectedPerson.identity_card}</p>
+                  <p className="text-xs text-primary-600">ID: {selectedPerson.identity_card}</p>
                 )}
               </div>
               <Button
                 type="button"
                 variant="ghost"
-                label="Cambiar"
+                label="Change"
                 onClick={() => {
                   setSelectedPerson(null)
                   setSearchQuery('')
@@ -217,16 +217,16 @@ export function SupportModal({
           <Button
             type="button"
             variant="ghost"
-            label="Cancelar"
+            label="Cancel"
             onClick={handleClose}
             disabled={isSubmitting}
           />
           <Button
             type="submit"
-            label="Registrar soporte"
+            label="Register Support"
             variant="primary"
             loading={isSubmitting}
-            isLoadingText="Guardando..."
+            isLoadingText="Saving..."
           />
         </div>
       </form>

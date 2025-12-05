@@ -6,7 +6,7 @@ export function TopBar() {
 
   const userName = useMemo(() => {
     if (!user?.person || !Array.isArray(user.person) || user.person.length === 0) {
-      return user?.username || 'Guest'
+      return user?.username || 'Invitado'
     }
     const person = user.person[0]
     return `${person.first_name} ${person.last_name || ''}`.trim() || user.username
@@ -14,9 +14,9 @@ export function TopBar() {
 
   const userRole = useMemo(() => {
     if (!user?.role || !Array.isArray(user.role) || user.role.length === 0) {
-      return 'No role'
+      return 'Sin rol'
     }
-    return user.role[0].name || 'No role'
+    return user.role[0].name || 'Sin rol'
   }, [user])
 
   const userLab = useMemo(() => {
@@ -29,9 +29,9 @@ export function TopBar() {
   return (
     <div className="sticky top-0 z-30 flex items-center justify-between border-b border-charcoal-100 bg-surface px-4 py-4 shadow-sm">
       <div className="pl-16 lg:pl-0">
-        <p className="text-xs uppercase tracking-[0.4em] text-charcoal-400">Dashboard</p>
+        <p className="text-xs uppercase tracking-[0.4em] text-charcoal-400">Panel de Control</p>
         <h1 className="text-xl font-semibold text-charcoal-900">
-          {user ? `Welcome, ${userName}` : 'Welcome'}
+          {user ? `Bienvenido, ${userName}` : 'Bienvenido'}
         </h1>
       </div>
       <div className="flex items-center gap-4">

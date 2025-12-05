@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import Button from '@/components/ui/Button/Button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { EyeIcon } from '@/components/icons/Icons'
 import type { LabReport } from '@/mocks/labs'
 
 interface ReportsSectionProps {
@@ -9,9 +10,10 @@ interface ReportsSectionProps {
   onViewAll: () => void
   isExpanded: boolean
   onToggleExpand: () => void
+  onView?: (report: LabReport) => void
 }
 
-export function ReportsSection({ reports, onNewReport, onViewAll, isExpanded, onToggleExpand }: ReportsSectionProps) {
+export function ReportsSection({ reports, onNewReport, onViewAll, isExpanded, onToggleExpand, onView }: ReportsSectionProps) {
   const displayedReports = useMemo(() => reports.slice(0, 5), [reports])
 
   return (
@@ -54,7 +56,18 @@ export function ReportsSection({ reports, onNewReport, onViewAll, isExpanded, on
                   <p className="text-xs uppercase tracking-widest text-charcoal-400">{report.type}</p>
                   <h4 className="text-lg font-semibold text-charcoal-900 break-words">{report.title}</h4>
                 </div>
-                <StatusBadge label={report.status} />
+                <div className="flex items-center gap-2">
+                  <StatusBadge label={report.status} />
+                  {onView && (
+                    <button
+                      onClick={() => onView(report)}
+                      className="text-charcoal-400 hover:text-primary-500 transition-colors p-1"
+                      title="Ver reporte"
+                    >
+                      <EyeIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
               </header>
               <div className="mt-auto">
                 <p className="text-sm text-charcoal-600 break-words">{report.details}</p>

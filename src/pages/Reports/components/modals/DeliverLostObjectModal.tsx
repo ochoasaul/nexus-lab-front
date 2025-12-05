@@ -53,7 +53,7 @@ export function DeliverLostObjectModal({
       setIsSearching(true)
       setSearchError(null)
       try {
-        const results = await personService.search(searchQuery.trim())
+        const results = await personService.search(searchQuery.trim(), 1, 20)
         setSearchResults(results)
       } catch (error: any) {
         setSearchError(error.message || 'Error searching for people')

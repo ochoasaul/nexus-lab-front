@@ -1,8 +1,10 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useDashboard } from '@/pages/Dashboard/useDashboard'
 import { lostObjectService, type LostObjectItem, LostObjectState } from '@/services/lostObjectService'
+import { reservationService, type CreateReservationDto } from '@/services/reservationService'
 import { useClassrooms } from '@/hooks/useClassrooms'
 import { useLostObjects } from '@/hooks/useLostObjects'
+import { useReservations } from '@/hooks/useReservations'
 import { useToastStore } from '@/store/toastStore'
 import { type LostObjectFormData } from './components/modals/LostObjectModal'
 
@@ -13,6 +15,7 @@ export function useReports() {
   const [isAllLostObjectsModalOpen, setIsAllLostObjectsModalOpen] = useState(false)
   const [isViewImageModalOpen, setIsViewImageModalOpen] = useState(false)
   const [isConfirmMoveModalOpen, setIsConfirmMoveModalOpen] = useState(false)
+  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false)
   const [selectedLostObject, setSelectedLostObject] = useState<LostObjectItem | null>(null)
   const [modalFilterState, setModalFilterState] = useState<'all' | 'Perdido' | 'Porteria' | 'Entregado'>('all')
   const [isMovingToPorteria, setIsMovingToPorteria] = useState(false)
@@ -30,6 +33,7 @@ export function useReports() {
   const currentMonth = new Date().toISOString().slice(0, 7)
   const { lostObjects, isLoading: isLoadingLostObjects, error: lostObjectsError, refetch: refetchLostObjects } = useLostObjects(currentMonth)
   const { classrooms, isLoading: isLoadingClassrooms, error: classroomsError } = useClassrooms()
+  const { formattedReservations, reservations, isLoading: isLoadingReservations, error: reservationsError, refetch: refetchReservations } = useReservations()
 
   // Filter only "Lost" objects and sort by date (newest first)
   const lostItems = useMemo(() => {
@@ -82,6 +86,20 @@ export function useReports() {
       throw error
     }
   }, [refetchLostObjects, addToast])
+
+  const handleReservationSubmit = useCallback(async (data: CreateReservationDto) => {
+    try {
+      await reservationService.create(data)
+      await refetchReservations()
+      setIsReservationModalOpen(false)
+      addToast('Reserva creada exitosamente', 'success')
+    } catch (error: any) {
+      console.error('Error al crear reserva:', error)
+      const errorMessage = error.message || 'Error al crear la reserva'
+      addToast(errorMessage, 'error')
+      throw error
+    }
+  }, [addToast, refetchReservations])
 
   const handleDeliverLostObject = useCallback(async (params: { person_id: string; evidence: File }) => {
     if (!selectedLostObject) return
@@ -165,6 +183,10 @@ export function useReports() {
     classroomsFormatted,
     isLoadingClassrooms,
     classroomsError,
+    formattedReservations,
+    reservations,
+    isLoadingReservations,
+    reservationsError,
     filteredObjectsForModal,
     currentMonth,
     // Modal states
@@ -178,6 +200,8 @@ export function useReports() {
     setIsViewImageModalOpen,
     isConfirmMoveModalOpen,
     setIsConfirmMoveModalOpen,
+    isReservationModalOpen,
+    setIsReservationModalOpen,
     selectedLostObject,
     setSelectedLostObject,
     modalFilterState,
@@ -185,6 +209,7 @@ export function useReports() {
     expandedSections,
     // Handlers
     handleLostObjectSubmit,
+    handleReservationSubmit,
     handleDeliverLostObject,
     handleMoveAllToReception,
     confirmMoveAllToReception,
@@ -195,6 +220,7 @@ export function useReports() {
     // Dashboard functions
     simulateReservation,
     simulateLostObject,
+    refetchReservations,
   }
 }
 

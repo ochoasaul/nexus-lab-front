@@ -1,95 +1,91 @@
-// import api from './api'
-import { reservationMockService } from '@/mocks/reservationMock'
+import api from './api'
 
 export interface CreateReservationDto {
+  dates: string // JSON string
+  start_date: string
+  end_date: string
+  requirements?: string
+  observation?: string
+  student_count?: string
+  state?: string
   subject: string
-  classroom_ids: (string | number)[]
-  dates: string
-  start_time: string
-  end_time: string
-}
-
-export interface UpdateReservationDto {
-  subject?: string
-  classroom_ids?: (string | number)[]
-  dates?: string
-  start_time?: string
-  end_time?: string
+  requester_person_id: string
+  classroom_id?: string
+  responsible_user_id?: string
+  day_type: string
+  schedule: string
 }
 
 export interface ReservationItem {
   id: string | number
-  subject: string
-  dates: string
-  start_time: string
-  end_time: string
-  classrooms?: {
-    id: string | number
+  dates: any
+  start_time?: string
+  end_time?: string
+  requirements?: string
+  observation?: string
+  student_count?: number
+  state?: string
+  subject?: string
+  day_type?: string
+  schedule?: string
+  requester_person_id?: string | number
+  classroom_id?: string | number
+  responsible_user_id?: string | number
+  created_at?: string
+  updated_at?: string
+  person?: {
+    first_name: string
+    last_name: string
+  }
+  classroom?: {
     name: string
-  }[]
-  created_at?: string | null
-  updated_at?: string | null
+  }
 }
 
-// Usando datos mock - cambiar a api cuando el backend esté listo
 export const reservationService = {
   create: async (data: CreateReservationDto): Promise<ReservationItem> => {
     try {
-      // const { data: response } = await api.post<ReservationItem>('/reservation', data)
-      // return response
-      return await reservationMockService.create(data)
+      const { data: response } = await api.post<ReservationItem>('/reservation-management', data)
+      return response
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error registering reservation'
-      )
-    }
-  },
-
-  update: async (id: string | number, data: UpdateReservationDto): Promise<ReservationItem> => {
-    try {
-      // const { data: response } = await api.patch<ReservationItem>(`/reservation/${id}`, data)
-      // return response
-      return await reservationMockService.update(id, data)
-    } catch (error: any) {
-      throw new Error(
-        error.message || 'Error updating reservation'
+        error.response?.data?.message || 'Error registering reservation'
       )
     }
   },
 
   getAll: async (): Promise<ReservationItem[]> => {
     try {
-      // const { data } = await api.get<ReservationItem[]>('/reservation')
-      // return data
-      return await reservationMockService.getAll()
+      const { data } = await api.get<ReservationItem[]>('/reservation-management')
+      return data
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error getting reservations'
+        error.response?.data?.message || 'Error getting reservations'
       )
     }
   },
 
-  getById: async (id: string | number): Promise<ReservationItem> => {
+  getAvailableClassrooms: async (data: Partial<CreateReservationDto>): Promise<{ id: string | number; name: string }[]> => {
     try {
-      // const { data } = await api.get<ReservationItem>(`/reservation/${id}`)
-      // return data
-      return await reservationMockService.getById(id)
+      const { data: response } = await api.post<{ id: string | number; name: string }[]>('/reservation-management/available-classrooms', data)
+      return response
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error getting reservation'
+        error.response?.data?.message || 'Error getting available classrooms'
       )
     }
   },
 
-  remove: async (id: string | number): Promise<void> => {
+  extend: async (id: string | number, dates: string[]): Promise<ReservationItem> => {
     try {
-      // await api.delete(`/reservation/${id}`)
-      await reservationMockService.remove(id)
+      const { data } = await api.post<ReservationItem>(`/reservation-management/${id}/extend`, { dates })
+      return data
     } catch (error: any) {
       throw new Error(
-        error.message || 'Error deleting reservation'
+        error.response?.data?.message || 'Error extending reservation'
       )
     }
   },
 }
+
 

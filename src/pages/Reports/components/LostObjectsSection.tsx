@@ -2,6 +2,7 @@ import Button from '@/components/ui/Button/Button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import type { LostObjectItem } from '@/services/lostObjectService'
 import { LostObjectState } from '@/services/lostObjectService'
+import { EyeIcon } from '@/components/icons/Icons'
 
 interface LostObjectsSectionProps {
   lostItems: LostObjectItem[]
@@ -72,15 +73,16 @@ export function LostObjectsSection({
                   {((lost.state === LostObjectState.Perdido || lost.state === LostObjectState.Porteria) && lost.multimedia?.path) ||
                     (lost.state === LostObjectState.Entregado && lost.object_delivery?.[0]?.multimedia?.path) ? (
                     <Button
-                      label="View"
+                      label=""
+                      Icon={EyeIcon}
                       variant="ghost"
                       onClick={() => onView(lost)}
-                      className="text-xs px-2 py-1"
+                      className="text-xs px-2 py-1 text-charcoal-400 hover:text-primary-500"
                     />
                   ) : null}
                   {lost.state === LostObjectState.Perdido && (
                     <Button
-                      label="Deliver"
+                      label="Entregar"
                       variant="ghost"
                       onClick={() => onDeliver(lost)}
                       className="text-xs px-2 py-1"
@@ -115,7 +117,6 @@ export function LostObjectsSection({
       <div className="mb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-charcoal-400">Lost Objects</p>
-          <p className="text-sm text-charcoal-500">Assigned Laboratory · {currentMonth}</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -150,7 +151,6 @@ export function LostObjectsSection({
       </div>
       <div className={`md:block ${isExpanded ? 'block' : 'hidden'}`}>
         <div>
-          <h3 className="text-sm font-semibold text-charcoal-700 mb-3">Lost Items</h3>
           {renderLostObjectsList()}
         </div>
       </div>

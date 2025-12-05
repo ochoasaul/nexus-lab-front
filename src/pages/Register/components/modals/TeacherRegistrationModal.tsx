@@ -27,7 +27,7 @@ export function TeacherRegistrationModal({
     if (searchQuery.trim().length > 2) {
       const timer = setTimeout(async () => {
         try {
-          const results = await personService.search(searchQuery)
+          const results = await personService.search(searchQuery, 1, 20)
           setSearchResults(results)
         } catch (error) {
           setSearchResults([])

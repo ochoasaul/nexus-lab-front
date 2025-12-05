@@ -5,8 +5,10 @@ import { Panel } from './Panel'
 import { useDashboard } from '@/pages/Dashboard/useDashboard'
 import { SupportModal } from '@/pages/Register/components/modals/SoporteModal'
 import { LostObjectModal, type LostObjectFormData } from '@/pages/Reports/components/modals/LostObjectModal'
-import { supportService } from '@/services/supportService'
+import { CreateReservationModal } from '@/pages/Reports/components/modals/CreateReservationModal'
+
 import { lostObjectService } from '@/services/lostObjectService'
+import { reservationService } from '@/services/reservationService'
 import { useClassrooms } from '@/hooks/useClassrooms'
 import { useLostObjects } from '@/hooks/useLostObjects'
 import { useToastStore } from '@/store/toastStore'
@@ -20,37 +22,6 @@ export function QuickActions() {
   const currentMonth = new Date().toISOString().slice(0, 7)
   const { refetch: refetchLostObjects } = useLostObjects(currentMonth)
   const { classrooms, isLoading: isLoadingClassrooms, error: classroomsError } = useClassrooms()
-
-  const handleSupportSubmit = async (data: {
-    type: 'subject' | 'technical'
-    problem: string
-    solution?: string
-    date_time?: string
-    requester_person_id?: string
-  }) => {
-    try {
-      if (data.type === 'subject') {
-        await supportService.createSubject({
-          problem: data.problem,
-          solution: data.solution,
-          date_time: data.date_time,
-        })
-        addToast('Subject support registered successfully', 'success')
-      } else {
-        await supportService.createTechnical({
-          problem: data.problem,
-          solution: data.solution,
-          date_time: data.date_time,
-          requester_person_id: data.requester_person_id,
-        })
-        addToast('Technical support registered successfully', 'success')
-      }
-    } catch (error: any) {
-      const errorMessage = error.message || 'Error al registrar el soporte'
-      addToast(errorMessage, 'error')
-      throw error
-    }
-  }
 
   const handleLostObjectSubmit = async (data: LostObjectFormData) => {
     if (!data.multimedia) {
@@ -83,33 +54,50 @@ export function QuickActions() {
     name: classroom.name,
   }))
 
+  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false)
+
+  const handleReservationSubmit = async (data: any) => {
+    try {
+      await reservationService.create(data)
+      addToast('Reserva creada exitosamente', 'success')
+      setIsReservationModalOpen(false)
+    } catch (error: any) {
+      console.error('Error creating reservation:', error)
+      addToast(error.message || 'Error al crear la reserva', 'error')
+    }
+  }
+
   return (
     <>
       <Panel title="Acciones rápidas">
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <Button
-            label="Registro de préstamos"
-            variant="primary"
+            label="Registro de Préstamos"
+            variant="secondary"
             onClick={simulateInventoryAudit}
             Icon={LoanIcon}
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
           />
           <Button
-            label="Support Registration"
+            label="Registro de Soporte"
             variant="secondary"
             onClick={() => setIsSupportModalOpen(true)}
             Icon={SupportIcon}
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
           />
           <Button
-            label="Registro de Objetos perdidos"
-            variant="ghost"
+            label="Registro de Objetos Perdidos"
+            variant="secondary"
             onClick={() => setIsLostObjectModalOpen(true)}
             Icon={InventoryIcon}
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
           />
           <Button
             label="Registro de Reservas"
-            variant="ghost"
-            onClick={simulateReservation}
+            variant="secondary"
+            onClick={() => setIsReservationModalOpen(true)}
             Icon={CalendarIcon}
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
           />
         </div>
       </Panel>
@@ -117,7 +105,7 @@ export function QuickActions() {
       <SupportModal
         isOpen={isSupportModalOpen}
         onClose={() => setIsSupportModalOpen(false)}
-        onSubmit={handleSupportSubmit}
+        onSuccess={() => setIsSupportModalOpen(false)}
       />
 
       <LostObjectModal
@@ -127,6 +115,13 @@ export function QuickActions() {
         classrooms={classroomsFormatted}
         isLoadingClassrooms={isLoadingClassrooms}
         classroomsError={classroomsError}
+      />
+
+      <CreateReservationModal
+        isOpen={isReservationModalOpen}
+        onClose={() => setIsReservationModalOpen(false)}
+        onSubmit={handleReservationSubmit}
+        classrooms={classroomsFormatted}
       />
     </>
   )
