@@ -1,8 +1,11 @@
-import { useState, FormEvent, ChangeEvent, useEffect } from 'react'
+import { useState, FormEvent, ChangeEvent } from 'react'
 import { Modal } from '../../../../components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
-import { personService, type Person } from '@/services/personService'
+import { type Person } from '@/services/personService'
 import { useCreateSupport } from '@/hooks/useSupport'
+import { usePersonSearch } from '@/hooks/usePersonSearch'
+
+import { CreatePersonModal } from '@/components/modals/CreatePersonModal'
 
 interface SupportModalProps {
   isOpen: boolean
@@ -18,34 +21,19 @@ export function SupportModal({
   const [problem, setProblem] = useState('')
   const [solution, setSolution] = useState('')
   const [dateTime, setDateTime] = useState('')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<Person[]>([])
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
-  const [isSearching, setIsSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isCreatePersonModalOpen, setIsCreatePersonModalOpen] = useState(false)
 
   const { mutate: createSupport, isPending: isSubmitting } = useCreateSupport()
-
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSearchResults([])
-      return
-    }
-
-    const timeout = setTimeout(async () => {
-      setIsSearching(true)
-      try {
-        const results = await personService.search(searchQuery.trim(), 1, 20)
-        setSearchResults(results)
-      } catch (err: any) {
-        console.error('Error searching persons:', err)
-      } finally {
-        setIsSearching(false)
-      }
-    }, 400)
-
-    return () => clearTimeout(timeout)
-  }, [searchQuery])
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    setSearchResults,
+    isSearching,
+    clearSearch
+  } = usePersonSearch()
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -86,8 +74,7 @@ export function SupportModal({
     setProblem('')
     setSolution('')
     setDateTime('')
-    setSearchQuery('')
-    setSearchResults([])
+    clearSearch()
     setSelectedPerson(null)
     setError(null)
   }
@@ -105,108 +92,141 @@ export function SupportModal({
       size="lg"
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* Date and Time */}
-        <div>
-          <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Date and Time
-          </label>
-          <input
-            type="datetime-local"
-            value={dateTime}
-            onChange={(e) => setDateTime(e.target.value)}
-            className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
-          />
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Date and Time */}
+          <div>
+            <label className="block text-sm font-medium text-charcoal-700 mb-2">
+              Date and Time
+            </label>
+            <input
+              type="datetime-local"
+              value={dateTime}
+              onChange={(e) => setDateTime(e.target.value)}
+              className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
+            />
+          </div>
 
-        {/* Problem */}
-        <div>
-          <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Problem <span className="text-primary-600">*</span>
-          </label>
-          <textarea
-            value={problem}
-            onChange={(e) => setProblem(e.target.value)}
-            rows={4}
-            className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none resize-none"
-            placeholder="Describe the problem..."
-            required
-          />
-        </div>
-
-        {/* Solution */}
-        <div>
-          <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Solution
-          </label>
-          <textarea
-            value={solution}
-            onChange={(e) => setSolution(e.target.value)}
-            rows={3}
-            className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none resize-none"
-            placeholder="Describe the applied solution..."
-          />
-        </div>
-
-        {/* Requester */}
-        <div>
-          <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Requester <span className="text-primary-600">*</span>
-          </label>
-          {!selectedPerson ? (
-            <>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
-                placeholder="Search person (name, last name or ID)..."
-              />
-              {isSearching && (
-                <p className="mt-2 text-sm text-charcoal-500">Searching...</p>
-              )}
-              {searchResults.length > 0 && (
-                <div className="mt-2 rounded-2xl border border-charcoal-100 bg-charcoal-50 p-3 space-y-2 max-h-48 overflow-y-auto">
-                  {searchResults.map((person) => (
+          {/* Requester */}
+          <div>
+            <label className="block text-sm font-medium text-charcoal-700 mb-2">
+              Requester <span className="text-primary-600">*</span>
+            </label>
+            {!selectedPerson ? (
+              <>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
+                  placeholder="Search person..."
+                />
+                {isSearching && (
+                  <p className="mt-2 text-sm text-charcoal-500">Searching...</p>
+                )}
+                {searchResults.length > 0 && (
+                  <div className="absolute z-10 mt-1 w-full max-w-xs rounded-2xl border border-charcoal-100 bg-charcoal-50 p-3 space-y-2 max-h-48 overflow-y-auto shadow-lg">
+                    {searchResults.map((person) => (
+                      <button
+                        type="button"
+                        key={person.id}
+                        className="w-full rounded-xl border border-transparent bg-white px-4 py-2 text-left text-sm text-charcoal-800 hover:border-primary-200 hover:bg-primary-25"
+                        onClick={() => {
+                          setSelectedPerson(person)
+                          setSearchResults([])
+                          setSearchQuery(`${person.first_name} ${person.last_name}`)
+                        }}
+                      >
+                        <span className="font-medium">{person.first_name} {person.last_name}</span>
+                        {person.identity_card && (
+                          <span className="ml-2 text-xs text-charcoal-500">ID: {person.identity_card}</span>
+                        )}
+                      </button>
+                    ))}
+                    {/* Create Option */}
                     <button
                       type="button"
-                      key={person.id}
-                      className="w-full rounded-xl border border-transparent bg-white px-4 py-2 text-left text-sm text-charcoal-800 hover:border-primary-200 hover:bg-primary-25"
+                      className="w-full text-left px-4 py-2 text-primary-600 hover:bg-primary-50 font-medium border-t border-charcoal-100 flex items-center gap-2"
                       onClick={() => {
-                        setSelectedPerson(person)
+                        setIsCreatePersonModalOpen(true)
                         setSearchResults([])
-                        setSearchQuery(`${person.first_name} ${person.last_name}`)
                       }}
                     >
-                      <span className="font-medium">{person.first_name} {person.last_name}</span>
-                      {person.identity_card && (
-                        <span className="ml-2 text-xs text-charcoal-500">ID: {person.identity_card}</span>
-                      )}
+                      <span>+</span>
+                      <span>Crear Nueva Persona</span>
                     </button>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="rounded-2xl border border-primary-100 bg-primary-25 p-4 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-primary-700">
-                  {selectedPerson.first_name} {selectedPerson.last_name}
-                </p>
-                {selectedPerson.identity_card && (
-                  <p className="text-xs text-primary-600">ID: {selectedPerson.identity_card}</p>
+                  </div>
                 )}
+                {/* Show create option if search has no results but query exists */}
+                {searchResults.length === 0 && searchQuery && !isSearching && (
+                  <div className="absolute z-10 mt-1 w-full max-w-xs rounded-2xl border border-charcoal-100 bg-charcoal-50 p-3 shadow-lg">
+                    <button
+                      type="button"
+                      className="w-full text-left px-4 py-2 text-primary-600 hover:bg-primary-50 font-medium flex items-center gap-2"
+                      onClick={() => {
+                        setIsCreatePersonModalOpen(true)
+                        setSearchResults([])
+                      }}
+                    >
+                      <span>+</span>
+                      <span>Crear persona: "{searchQuery}"</span>
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="rounded-2xl border border-primary-100 bg-primary-25 p-2.5 flex items-center justify-between">
+                <div className="truncate mr-2">
+                  <p className="text-sm font-semibold text-primary-700 truncate">
+                    {selectedPerson.first_name} {selectedPerson.last_name}
+                  </p>
+                  {selectedPerson.identity_card && (
+                    <p className="text-xs text-primary-600">ID: {selectedPerson.identity_card}</p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  label="Change"
+                  onClick={() => {
+                    setSelectedPerson(null)
+                    setSearchQuery('')
+                  }}
+                  className="!p-1 text-xs"
+                />
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                label="Change"
-                onClick={() => {
-                  setSelectedPerson(null)
-                  setSearchQuery('')
-                }}
-              />
-            </div>
-          )}
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Problem */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-charcoal-700 mb-2">
+              Problem <span className="text-primary-600">*</span>
+            </label>
+            <textarea
+              value={problem}
+              onChange={(e) => setProblem(e.target.value)}
+              rows={3}
+              className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none resize-none"
+              placeholder="Describe the problem..."
+              required
+            />
+          </div>
+
+          {/* Solution */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-charcoal-700 mb-2">
+              Solution
+            </label>
+            <textarea
+              value={solution}
+              onChange={(e) => setSolution(e.target.value)}
+              rows={2}
+              className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none resize-none"
+              placeholder="Describe the applied solution..."
+            />
+          </div>
         </div>
 
         {error && (
@@ -230,6 +250,16 @@ export function SupportModal({
           />
         </div>
       </form>
+
+      <CreatePersonModal
+        isOpen={isCreatePersonModalOpen}
+        onClose={() => setIsCreatePersonModalOpen(false)}
+        onSuccess={(person) => {
+          setSelectedPerson(person)
+          setSearchQuery(`${person.first_name} ${person.last_name}`)
+          setIsCreatePersonModalOpen(false)
+        }}
+      />
     </Modal>
   )
 }

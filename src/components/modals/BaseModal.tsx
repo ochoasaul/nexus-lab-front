@@ -35,10 +35,10 @@ export function BaseModal({ isOpen, onClose, title, children, size = 'md' }: Mod
       onClick={onClose}
     >
       <div
-        className={`w-full ${sizeClasses[size]} rounded-3xl border border-charcoal-100 bg-white shadow-xl`}
+        className={`w-full ${sizeClasses[size]} rounded-3xl border border-charcoal-100 bg-white shadow-xl flex flex-col max-h-[90dvh]`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-charcoal-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-charcoal-100 px-6 py-4 shrink-0">
           <h2 className="text-xl font-semibold text-charcoal-900">{title}</h2>
           <button
             onClick={onClose}
@@ -60,7 +60,7 @@ export function BaseModal({ isOpen, onClose, title, children, size = 'md' }: Mod
             </svg>
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto">{children}</div>
       </div>
     </div>
   )

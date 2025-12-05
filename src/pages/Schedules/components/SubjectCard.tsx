@@ -12,20 +12,20 @@ export function SubjectCard({ subject, onEdit, onToggle }: SubjectCardProps) {
   return (
     <article
       className={`rounded-2xl border p-4 ${subject.state === 'inactive'
-          ? 'border-charcoal-200 bg-charcoal-50 opacity-60'
-          : 'border-charcoal-100 bg-white'
+        ? 'border-charcoal-200 bg-charcoal-50 opacity-60'
+        : 'border-charcoal-100 bg-white'
         }`}
     >
       <header className="mb-3 flex items-start justify-between">
         <div className="flex-1">
           <h4 className="text-lg font-semibold text-charcoal-900">{subject.name}</h4>
-          <p className="text-sm text-charcoal-600 mt-1">{subject.teacher}</p>
+          <p className="text-sm text-charcoal-600 mt-1">{subject.teacher.person?.first_name} {subject.teacher.person?.last_name}</p>
         </div>
         <StatusBadge label={subject.state === 'active' ? 'Active' : 'Inactive'} />
       </header>
       <div className="space-y-2 text-sm text-charcoal-600">
         <p>
-          <span className="font-medium">Classroom:</span> {subject.classroom}
+          <span className="font-medium">Classroom:</span> {subject.classroom.name}
         </p>
         <p>
           <span className="font-medium">Schedule:</span> {subject.schedule}

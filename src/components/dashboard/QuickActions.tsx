@@ -76,28 +76,28 @@ export function QuickActions() {
             variant="secondary"
             onClick={simulateInventoryAudit}
             Icon={LoanIcon}
-            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm whitespace-nowrap"
           />
           <Button
             label="Registro de Soporte"
             variant="secondary"
             onClick={() => setIsSupportModalOpen(true)}
             Icon={SupportIcon}
-            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm whitespace-nowrap"
           />
           <Button
             label="Registro de Objetos Perdidos"
             variant="secondary"
             onClick={() => setIsLostObjectModalOpen(true)}
             Icon={InventoryIcon}
-            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm whitespace-nowrap"
           />
           <Button
             label="Registro de Reservas"
             variant="secondary"
             onClick={() => setIsReservationModalOpen(true)}
             Icon={CalendarIcon}
-            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm whitespace-nowrap"
           />
         </div>
       </Panel>

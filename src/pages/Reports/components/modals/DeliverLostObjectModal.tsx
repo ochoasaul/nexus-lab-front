@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, ChangeEvent, FormEvent } from 'react'
 import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
 import { personService, type Person } from '@/services/personService'
+import { CreatePersonModal } from '@/components/modals/CreatePersonModal'
 import { ImagePreviewModal } from './ImagePreviewModal'
 
 interface DeliverLostObjectModalProps {
@@ -36,6 +37,7 @@ export function DeliverLostObjectModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isCreatePersonModalOpen, setIsCreatePersonModalOpen] = useState(false)
 
   useEffect(() => {
     if (!isOpen) {
@@ -153,100 +155,131 @@ export function DeliverLostObjectModal({
             </button>
           </div>
         )}
-        <div>
-          <label className="block text-sm font-medium text-charcoal-700 mb-2">
-            Search person (name, last name or ID)
-          </label>
-          <input
-            type="text"
-            className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
-            placeholder="Ex: John, Doe, 123456"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-          />
-          {searchError && (
-            <p className="mt-2 text-sm text-red-600">{searchError}</p>
-          )}
-        </div>
-
-        {isSearching && (
-          <p className="text-sm text-charcoal-500">Searching people...</p>
-        )}
-
-        {!selectedPerson && searchResults.length > 0 && (
-          <div className="rounded-2xl border border-charcoal-100 bg-charcoal-50 p-3 space-y-2 max-h-48 overflow-y-auto">
-            {searchResults.map((person) => (
-              <button
-                type="button"
-                key={person.id}
-                className="w-full rounded-xl border border-transparent bg-white px-4 py-2 text-left text-sm text-charcoal-800 hover:border-primary-200 hover:bg-primary-25"
-                onClick={() => {
-                  setSelectedPerson(person)
-                  setSearchResults([])
-                  setSearchQuery(`${person.first_name} ${person.last_name}`)
-                }}
-              >
-                <span className="font-medium">{person.first_name} {person.last_name}</span>
-                {person.identity_card && (
-                  <span className="ml-2 text-xs text-charcoal-500">CI: {person.identity_card}</span>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {selectedPerson && (
-          <div className="rounded-2xl border border-primary-100 bg-primary-25 p-4 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-primary-700">
-                {selectedPerson.first_name} {selectedPerson.last_name}
-              </p>
-              {selectedPerson.identity_card && (
-                <p className="text-xs text-primary-600">CI: {selectedPerson.identity_card}</p>
-              )}
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              label="Change"
-              onClick={() => setSelectedPerson(null)}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-charcoal-700 mb-2">
+              Search person (name, last name or ID)
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-charcoal-900 focus:border-primary-400 focus:outline-none"
+              placeholder="Ex: John, Doe, 123456"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
             />
-          </div>
-        )}
+            {searchError && (
+              <p className="mt-2 text-sm text-red-600">{searchError}</p>
+            )}
 
-        <div>
-          <label className="block text-sm font-medium text-charcoal-700 mb-1">
-            Delivery Evidence (image) <span className="text-primary-600">*</span>
-          </label>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleEvidenceChange}
-            className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-sm text-charcoal-900 focus:border-primary-400 focus:outline-none file:mr-4 file:rounded-full file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-600 hover:file:bg-primary-100"
-            required
-          />
-          {evidence && (
-            <div className="mt-3 flex items-center justify-between rounded-2xl border border-charcoal-200 bg-charcoal-50 px-4 py-2">
-              <p className="text-sm text-charcoal-700 truncate">{evidence.name}</p>
-              <div className="space-x-2">
+            {isSearching && (
+              <p className="text-sm text-charcoal-500 mt-1">Searching people...</p>
+            )}
+
+            {!selectedPerson && searchResults.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full max-w-xs rounded-2xl border border-charcoal-100 bg-charcoal-50 p-3 space-y-2 max-h-48 overflow-y-auto shadow-lg">
+                {searchResults.map((person) => (
+                  <button
+                    type="button"
+                    key={person.id}
+                    className="w-full rounded-xl border border-transparent bg-white px-4 py-2 text-left text-sm text-charcoal-800 hover:border-primary-200 hover:bg-primary-25"
+                    onClick={() => {
+                      setSelectedPerson(person)
+                      setSearchResults([])
+                      setSearchQuery(`${person.first_name} ${person.last_name}`)
+                    }}
+                  >
+                    <span className="font-medium">{person.first_name} {person.last_name}</span>
+                    {person.identity_card && (
+                      <span className="ml-2 text-xs text-charcoal-500">CI: {person.identity_card}</span>
+                    )}
+                  </button>
+                ))}
+                {/* Create Option */}
                 <button
                   type="button"
-                  className="text-sm text-primary-600 hover:text-primary-700"
-                  onClick={() => setIsPreviewOpen(true)}
+                  className="w-full text-left px-4 py-2 text-primary-600 hover:bg-primary-50 font-medium border-t border-charcoal-100 flex items-center gap-2"
+                  onClick={() => {
+                    setIsCreatePersonModalOpen(true)
+                    setIsSearching(false)
+                  }}
                 >
-                  View
-                </button>
-                <button
-                  type="button"
-                  className="text-sm text-red-600 hover:text-red-700"
-                  onClick={resetEvidence}
-                >
-                  Remove
+                  <span>+</span>
+                  <span>Crear Nueva Persona</span>
                 </button>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Show create option if search has no results but query exists */}
+            {!selectedPerson && searchResults.length === 0 && searchQuery && !isSearching && (
+              <div className="absolute z-10 mt-1 w-full max-w-xs rounded-2xl border border-charcoal-100 bg-charcoal-50 p-3 shadow-lg">
+                <button
+                  type="button"
+                  className="w-full text-left px-4 py-2 text-primary-600 hover:bg-primary-50 font-medium flex items-center gap-2"
+                  onClick={() => {
+                    setIsCreatePersonModalOpen(true)
+                    setIsSearching(false)
+                  }}
+                >
+                  <span>+</span>
+                  <span>Crear persona: "{searchQuery}"</span>
+                </button>
+              </div>
+            )}
+
+            {selectedPerson && (
+              <div className="mt-2 rounded-2xl border border-primary-100 bg-primary-25 p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-primary-700">
+                    {selectedPerson.first_name} {selectedPerson.last_name}
+                  </p>
+                  {selectedPerson.identity_card && (
+                    <p className="text-xs text-primary-600">CI: {selectedPerson.identity_card}</p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  label="Change"
+                  onClick={() => setSelectedPerson(null)}
+                />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-charcoal-700 mb-1">
+              Delivery Evidence (image) <span className="text-primary-600">*</span>
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleEvidenceChange}
+              className="w-full rounded-2xl border border-charcoal-200 bg-white px-4 py-2.5 text-sm text-charcoal-900 focus:border-primary-400 focus:outline-none file:mr-4 file:rounded-full file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-600 hover:file:bg-primary-100"
+              required
+            />
+            {evidence && (
+              <div className="mt-3 flex items-center justify-between rounded-2xl border border-charcoal-200 bg-charcoal-50 px-4 py-2">
+                <p className="text-sm text-charcoal-700 truncate">{evidence.name}</p>
+                <div className="space-x-2">
+                  <button
+                    type="button"
+                    className="text-sm text-primary-600 hover:text-primary-700"
+                    onClick={() => setIsPreviewOpen(true)}
+                  >
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    className="text-sm text-red-600 hover:text-red-700"
+                    onClick={resetEvidence}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {formError && (
@@ -276,6 +309,16 @@ export function DeliverLostObjectModal({
         onClose={() => setIsPreviewOpen(false)}
         imageUrl={previewImage || lostObject?.multimedia?.path || ''}
         imageName={evidence?.name || lostObject?.multimedia?.name || lostObject?.object}
+      />
+
+      <CreatePersonModal
+        isOpen={isCreatePersonModalOpen}
+        onClose={() => setIsCreatePersonModalOpen(false)}
+        onSuccess={(person) => {
+          setSelectedPerson(person)
+          setSearchQuery(`${person.first_name} ${person.last_name}`)
+          setIsCreatePersonModalOpen(false)
+        }}
       />
     </Modal>
   )

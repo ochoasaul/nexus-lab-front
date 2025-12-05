@@ -8,7 +8,7 @@ import { CreatePersonModal } from '@/components/modals/CreatePersonModal'
 interface CreateReservationModalProps {
     isOpen: boolean
     onClose: () => void
-    onSubmit: (data: any) => void
+    onSubmit: (data: any) => Promise<void> | void
     classrooms: { id: string | number; name: string }[]
 }
 
@@ -203,6 +203,10 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
         const selectedType = DAY_TYPE_OPTIONS.find(d => d.value === formData.day_type)
         if (!selectedType) return false
 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (date < today) return false;
+
         const dayOfWeek = date.getDay() // 0 = Sun
         return selectedType.days.includes(dayOfWeek)
     }
@@ -221,9 +225,15 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
         })
     }
 
-    const handleSubmit = () => {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [submitError, setSubmitError] = useState<string | null>(null)
+
+    const handleSubmit = async () => {
         // Calculate start and end date from selected dates
         if (formData.dates.length === 0) return
+
+        setIsSubmitting(true)
+        setSubmitError(null)
 
         const sortedDates = [...formData.dates].sort()
         // Create Date objects and convert to ISO string to satisfy backend validation
@@ -238,8 +248,15 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
             dates: JSON.stringify(formData.dates)
         }
 
-        onSubmit(payload)
-        onClose()
+        try {
+            await onSubmit(payload)
+            onClose()
+        } catch (error: any) {
+            console.error('Error submitting reservation:', error)
+            setSubmitError(error.message || 'Error al crear la reserva')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -349,7 +366,7 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
 
                         {/* Classroom removed from here */}
 
-                        <div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-charcoal-700 mb-1">Cant. Estudiantes</label>
                                 <input
@@ -525,17 +542,34 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
                             )}
                         </div>
 
-                        <div className="flex justify-between pt-4 border-t border-charcoal-100">
-                            <Button label="Atrás" variant="ghost" onClick={() => setStep(1)} />
-                            <Button
-                                label="Guardar Reserva"
-                                onClick={handleSubmit}
-                                disabled={formData.dates.length === 0 || !formData.classroom_id}
-                            />
+                        <div className="flex flex-col gap-2 pt-4 border-t border-charcoal-100">
+                            {submitError && (
+                                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                                    {submitError}
+                                </div>
+                            )}
+                            <div className="flex justify-between">
+                                <Button label="Atrás" variant="ghost" onClick={() => setStep(1)} disabled={isSubmitting} />
+                                <Button
+                                    label={isSubmitting ? "Guardando..." : "Guardar Reserva"}
+                                    onClick={handleSubmit}
+                                    disabled={formData.dates.length === 0 || !formData.classroom_id || isSubmitting}
+                                />
+                            </div>
                         </div>
                     </div>
                 )}
             </div>
+            <CreatePersonModal
+                isOpen={isCreatePersonModalOpen}
+                onClose={() => setIsCreatePersonModalOpen(false)}
+                onSuccess={(person) => {
+                    setSelectedPerson(person)
+                    setFormData(prev => ({ ...prev, requester_person_id: String(person.id) }))
+                    setSearchQuery(`${person.first_name} ${person.last_name}`)
+                    setIsCreatePersonModalOpen(false)
+                }}
+            />
         </Modal >
     )
 }

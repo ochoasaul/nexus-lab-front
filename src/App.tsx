@@ -15,10 +15,8 @@ function App() {
         const user = await authService.getCurrentUser()
         if (user) {
           setProfile(user)
-          console.log('👤 Usuario cargado desde el servidor:', user)
         }
       } catch (error) {
-        console.error('Error loading user profile:', error)
       } finally {
         setLoading(false)
       }

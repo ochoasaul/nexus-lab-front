@@ -42,6 +42,30 @@ export const classroomService = {
     }
   },
 
+  getAllWithStatus: async (): Promise<any[]> => {
+    try {
+      const { data } = await api.get<any[]>('/classroom/status')
+      return data
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message ||
+        'Error getting classrooms with status'
+      )
+    }
+  },
+
+  getSchedule: async (id: number): Promise<{ assignments: any[], reservations: any[] }> => {
+    try {
+      const { data } = await api.get<{ assignments: any[], reservations: any[] }>(`/classroom/${id}/schedule`)
+      return data
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message ||
+        'Error getting classroom schedule'
+      )
+    }
+  },
+
   create: async (data: CreateClassroomDto): Promise<Classroom> => {
     try {
       const { data: responseData } = await api.post<Classroom>('/classroom', data)

@@ -12,9 +12,18 @@ interface Classroom {
 interface SubjectData {
   id?: string | number
   name: string
-  teacher: string
+  teacher: {
+    id: string | number
+    person: {
+      first_name: string
+      last_name: string
+    }
+  }
   teacher_id?: string
-  classroom: string
+  classroom: {
+    id: string | number
+    name: string
+  }
   classroom_id?: string
   schedule: string
   daysType: string
@@ -70,21 +79,26 @@ export function SubjectModal({
   useEffect(() => {
     if (subject) {
       setName(subject.name)
-      setTeacherId(subject.teacher_id || '')
-      // Handle teacher pre-selection if we have teacher name but no ID (legacy data)
-      // Ideally we should have teacher_id. If not, we can't pre-select easily without search.
-      // Assuming subject.teacher is the name.
-      if (subject.teacher_id) {
-        // We might need to fetch teacher details if we want to show name in search box, 
-        // but for now let's assume we can just set the ID and maybe show the name from subject.teacher
-        setTeacherQuery(subject.teacher)
-      } else {
-        setTeacherQuery(subject.teacher)
+
+      // Teacher
+      if (subject.teacher) {
+        setTeacherQuery(`${subject.teacher.person?.first_name} ${subject.teacher.person?.last_name}`)
+        setTeacherId(String(subject.teacher.id))
+        // We can set selectedTeacher if we want to preserve the object, 
+        // but we need to match Teacher interface. 
+        // The subject.teacher structure matches what we need for display.
+        // We might need to cast or ensure types match.
+        // For now, just setting query and ID is enough for the form logic (which uses teacherId or selectedTeacher.id)
       }
 
       // Classroom
-      const foundClassroom = classrooms.find(c => c.name === subject.classroom || String(c.id) === subject.classroom_id)
-      setClassroomId(foundClassroom ? String(foundClassroom.id) : '')
+      if (subject.classroom) {
+        setClassroomId(String(subject.classroom.id))
+      } else if (subject.classroom_id) {
+        // Fallback if we only have ID
+        const foundClassroom = classrooms.find(c => String(c.id) === subject.classroom_id)
+        setClassroomId(foundClassroom ? String(foundClassroom.id) : subject.classroom_id)
+      }
 
       setSchedule(subject.schedule)
       setDaysType(subject.daysType)
