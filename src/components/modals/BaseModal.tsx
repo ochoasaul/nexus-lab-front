@@ -35,7 +35,7 @@ export function BaseModal({ isOpen, onClose, title, children, size = 'md' }: Mod
       onClick={onClose}
     >
       <div
-        className={`w-full ${sizeClasses[size]} rounded-3xl border border-charcoal-100 bg-white shadow-xl flex flex-col max-h-[90dvh]`}
+        className={`w-full ${sizeClasses[size]} rounded-3xl border border-charcoal-100 bg-white shadow-xl flex flex-col max-h-[100dvh]`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-charcoal-100 px-6 py-4 shrink-0">

@@ -12,7 +12,6 @@ export interface Classroom {
 export interface CreateClassroomDto {
   name: string
   block?: string
-  state?: string
 }
 
 export interface UpdateClassroomDto extends Partial<CreateClassroomDto> { }

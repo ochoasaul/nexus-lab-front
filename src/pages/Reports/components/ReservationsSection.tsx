@@ -95,7 +95,9 @@ export function ReservationsSection({
                 </header>
                 <div className="mt-auto flex items-end justify-between gap-2">
                   <div>
-                    <p className="text-sm text-charcoal-600 break-words">{reservation.classroom?.name || 'Sin aula'}</p>
+                    <p className={`text-sm break-words ${!reservation.classroom ? 'text-red-500 font-medium' : 'text-charcoal-600'}`}>
+                      {reservation.classroom?.name || 'Sin aula'}
+                    </p>
                     <small className="text-xs text-charcoal-400">{getDisplayDate(reservation.dates)}</small>
                   </div>
                   <Button

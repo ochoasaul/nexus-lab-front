@@ -6,6 +6,7 @@ export interface Person {
   first_name: string
   last_name: string
   identity_card?: string | null
+  student?: { registration: string }[]
 }
 
 export enum PersonType {

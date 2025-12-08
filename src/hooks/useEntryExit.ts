@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { teacherAttendanceService, DailySchedule } from '@/services/teacherAttendanceService'
 
-export function useEntradaSalida() {
+export function useEntryExit() {
   const [schedules, setSchedules] = useState<DailySchedule[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRegistrarModalOpen, setIsRegistrarModalOpen] = useState(false)

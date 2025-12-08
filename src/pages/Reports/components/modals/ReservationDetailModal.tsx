@@ -3,6 +3,7 @@ import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { reservationService, type ReservationItem } from '@/services/reservationService'
+import { Calendar } from '@/components/ui/Calendar'
 
 interface ReservationDetailModalProps {
     isOpen: boolean
@@ -22,52 +23,18 @@ const DAY_TYPE_OPTIONS = [
 export function ReservationDetailModal({ isOpen, onClose, reservation, onReservationUpdated }: ReservationDetailModalProps) {
     const [isExtending, setIsExtending] = useState(false)
     const [newDates, setNewDates] = useState<string[]>([])
-    const [currentMonth, setCurrentMonth] = useState(new Date())
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [mobileCalendarView, setMobileCalendarView] = useState(0)
 
     useEffect(() => {
         if (isOpen) {
             setIsExtending(false)
             setNewDates([])
-            setCurrentMonth(new Date())
             setError(null)
         }
     }, [isOpen])
 
     if (!reservation) return null
-
-    // Calendar Logic (Reused)
-    const getDaysInMonth = (date: Date) => {
-        const year = date.getFullYear()
-        const month = date.getMonth()
-        const days = new Date(year, month + 1, 0).getDate()
-        const firstDay = new Date(year, month, 1).getDay() // 0 = Sun
-        return { days, firstDay, year, month }
-    }
-
-    const generateCalendarDays = (date: Date) => {
-        const { days, firstDay, year, month } = getDaysInMonth(date)
-        const calendarDays = []
-
-        for (let i = 0; i < firstDay; i++) {
-            calendarDays.push(null)
-        }
-
-        for (let i = 1; i <= days; i++) {
-            calendarDays.push(new Date(year, month, i))
-        }
-
-        return calendarDays
-    }
-
-    const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
-
-    const calendars = [
-        { date: currentMonth, days: generateCalendarDays(currentMonth) },
-        { date: nextMonth, days: generateCalendarDays(nextMonth) }
-    ]
 
     const isDateSelectable = (date: Date) => {
         if (!reservation.day_type) return false
@@ -202,65 +169,13 @@ export function ReservationDetailModal({ isOpen, onClose, reservation, onReserva
                     {/* Calendar View for Extending */}
                     {isExtending && (
                         <div className="space-y-4 animate-fadeIn">
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm text-charcoal-500">Selecciona las nuevas fechas a agregar.</p>
-                                <div className="flex gap-2 md:hidden">
-                                    <button
-                                        onClick={() => setMobileCalendarView(0)}
-                                        disabled={mobileCalendarView === 0}
-                                        className={`p-1 rounded ${mobileCalendarView === 0 ? 'text-charcoal-300' : 'hover:bg-charcoal-100'}`}
-                                    >
-                                        ←
-                                    </button>
-                                    <button
-                                        onClick={() => setMobileCalendarView(1)}
-                                        disabled={mobileCalendarView === 1}
-                                        className={`p-1 rounded ${mobileCalendarView === 1 ? 'text-charcoal-300' : 'hover:bg-charcoal-100'}`}
-                                    >
-                                        →
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {calendars.map((calendar, idx) => (
-                                    <div key={idx} className={`border border-charcoal-100 rounded-xl p-4 ${idx !== mobileCalendarView ? 'hidden md:block' : ''}`}>
-                                        <div className="text-center font-medium mb-3 capitalize">
-                                            {calendar.date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
-                                        </div>
-                                        <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-charcoal-500">
-                                            <div>Do</div><div>Lu</div><div>Ma</div><div>Mi</div><div>Ju</div><div>Vi</div><div>Sa</div>
-                                        </div>
-                                        <div className="grid grid-cols-7 gap-1">
-                                            {calendar.days.map((date, dIdx) => {
-                                                if (!date) return <div key={dIdx} />
-
-                                                const dateStr = date.toISOString().split('T')[0]
-                                                const isExisting = existingDates.includes(dateStr)
-                                                const isNew = newDates.includes(dateStr)
-                                                const isSelectable = isDateSelectable(date)
-
-                                                return (
-                                                    <button
-                                                        key={dIdx}
-                                                        onClick={() => toggleDate(date)}
-                                                        disabled={isExisting || !isSelectable}
-                                                        className={`
-                                                            h-7 w-7 md:h-8 md:w-8 rounded-full flex items-center justify-center text-xs md:text-sm transition-colors mx-auto
-                                                            ${isExisting ? 'bg-charcoal-200 text-charcoal-500 cursor-not-allowed' : ''}
-                                                            ${isNew ? 'bg-primary-600 text-white' : ''}
-                                                            ${!isExisting && !isNew && isSelectable ? 'hover:bg-primary-50 text-charcoal-900' : ''}
-                                                            ${!isExisting && !isSelectable ? 'text-charcoal-300 cursor-not-allowed' : ''}
-                                                        `}
-                                                        title={isExisting ? 'Ya reservado' : ''}
-                                                    >
-                                                        {date.getDate()}
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                ))}
+                            <div className="grid grid-cols-1 gap-6">
+                                <Calendar
+                                    selectedDates={newDates}
+                                    existingDates={existingDates}
+                                    onDateSelect={toggleDate}
+                                    isDateSelectable={isDateSelectable}
+                                />
                             </div>
 
                             {error && (

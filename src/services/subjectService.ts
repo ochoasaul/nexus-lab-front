@@ -20,6 +20,7 @@ export interface Subject {
     endDate: string
     state?: 'active' | 'inactive'
     requirements?: string
+    student_count?: number
 }
 
 export interface CreateSubjectDto extends Omit<Subject, 'id' | 'state'> { }
@@ -28,7 +29,13 @@ export interface UpdateSubjectDto extends Partial<Omit<Subject, 'id'>> { }
 export const subjectService = {
     getAll: async (): Promise<Subject[]> => {
         const response = await api.get('/course-assignment-management/active')
-        return response.data
+        return response.data.map((item: any) => ({
+            ...item,
+            name: item.subject?.name || 'Sin nombre',
+            daysType: item.day_type,
+            startDate: item.start_date,
+            endDate: item.end_date,
+        }))
     },
 
     getById: async (id: number | string): Promise<Subject> => {
@@ -51,5 +58,20 @@ export const subjectService = {
 
     delete: async (id: number | string): Promise<void> => {
         await api.delete(`/course-assignment-management/${id}`)
+    },
+
+    search: async (query: string): Promise<Subject[]> => {
+        const response = await api.get(`/subject/search`, { params: { q: query } })
+        return response.data
+    },
+
+    createSubject: async (data: { name: string, career_id?: number }): Promise<Subject> => {
+        const response = await api.post('/subject', data)
+        return response.data
+    },
+
+    importAssignments: async (data: any[]): Promise<{ created: number, errors: any[], incompleteTeachers: any[] }> => {
+        const response = await api.post('/course-assignment-management/import', data)
+        return response.data
     }
 }

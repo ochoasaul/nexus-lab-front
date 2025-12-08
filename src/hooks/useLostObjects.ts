@@ -1,41 +1,52 @@
-import { useEffect, useCallback } from 'react'
-import { lostObjectService } from '@/services/lostObjectService'
-import { useLostObjectsStore } from '@/store/lostObjectsStore'
+import { useState, useEffect, useCallback } from 'react'
+import { lostObjectService, type LostObjectItem } from '@/services/lostObjectService'
 
 export function useLostObjects(month?: string) {
-  const {
-    lostObjects,
-    setLostObjects,
-    isLoading: storeIsLoading,
-    error: storeError,
-    setLoading,
-    setError,
-    clearError
-  } = useLostObjectsStore()
+  const [lostObjects, setLostObjects] = useState<LostObjectItem[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchLostObjects = useCallback(async () => {
-    setLoading(true)
-    clearError()
+    setIsLoading(true)
+    setError(null)
     try {
       const data = await lostObjectService.getByLaboratoryAndMonth(month)
       setLostObjects(data)
     } catch (err: any) {
-      const errorMessage = err.message || 'Error loading lost objects'
-      setError(errorMessage)
-      console.error('Error loading lost objects:', err)
+      setError(err.message || 'Error loading lost objects')
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
-  }, [month, setLostObjects, setLoading, setError, clearError])
+  }, [month])
 
   useEffect(() => {
     fetchLostObjects()
   }, [fetchLostObjects])
 
+  const deliverLostObject = useCallback(async (id: string | number, data: { person_id: string; evidence: File }) => {
+    try {
+      await lostObjectService.deliver(id, { person_id: data.person_id }, data.evidence)
+      await fetchLostObjects()
+    } catch (err: any) {
+      throw new Error(err.message || 'Error delivering lost object')
+    }
+  }, [fetchLostObjects])
+
+  const moveAllLostToReception = useCallback(async () => {
+    try {
+      await lostObjectService.moveAllLostToReception()
+      await fetchLostObjects()
+    } catch (err: any) {
+      throw new Error(err.message || 'Error moving objects to reception')
+    }
+  }, [fetchLostObjects])
+
   return {
     lostObjects,
-    isLoading: storeIsLoading,
-    error: storeError,
+    isLoading,
+    error,
     refetch: fetchLostObjects,
+    deliverLostObject,
+    moveAllLostToReception
   }
 }

@@ -4,6 +4,7 @@ import Button from '@/components/ui/Button/Button'
 import { personService, type Person } from '@/services/personService'
 import { reservationService } from '@/services/reservationService'
 import { CreatePersonModal } from '@/components/modals/CreatePersonModal'
+import { Calendar } from '@/components/ui/Calendar'
 
 interface CreateReservationModalProps {
     isOpen: boolean
@@ -44,7 +45,6 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
     })
 
     const [newRequirement, setNewRequirement] = useState('')
-    const [currentMonth, setCurrentMonth] = useState(new Date())
 
     // Search state
     const [searchQuery, setSearchQuery] = useState('')
@@ -104,7 +104,17 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
                 requirements: [],
                 dates: []
             })
-            setCurrentMonth(new Date())
+            setFormData({
+                subject: '',
+                requester_person_id: '',
+                classroom_id: '',
+                student_count: '',
+                schedule: '',
+                day_type: '',
+                observation: '',
+                requirements: [],
+                dates: []
+            })
             setSearchQuery('')
             setSearchResults([])
             setSelectedPerson(null)
@@ -162,39 +172,6 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
             requirements: prev.requirements.filter((_, i) => i !== index)
         }))
     }
-
-    // Calendar Logic
-    const getDaysInMonth = (date: Date) => {
-        const year = date.getFullYear()
-        const month = date.getMonth()
-        const days = new Date(year, month + 1, 0).getDate()
-        const firstDay = new Date(year, month, 1).getDay() // 0 = Sun
-        return { days, firstDay, year, month }
-    }
-
-    const generateCalendarDays = (date: Date) => {
-        const { days, firstDay, year, month } = getDaysInMonth(date)
-        const calendarDays = []
-
-        // Empty slots for previous month
-        for (let i = 0; i < firstDay; i++) {
-            calendarDays.push(null)
-        }
-
-        // Days of month
-        for (let i = 1; i <= days; i++) {
-            calendarDays.push(new Date(year, month, i))
-        }
-
-        return calendarDays
-    }
-
-    const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
-
-    const calendars = [
-        { date: currentMonth, days: generateCalendarDays(currentMonth) },
-        { date: nextMonth, days: generateCalendarDays(nextMonth) }
-    ]
 
     const isDateSelectable = (date: Date) => {
         if (!formData.day_type) return false
@@ -457,47 +434,14 @@ export function CreateReservationModal({ isOpen, onClose, onSubmit, classrooms }
                     <div className="space-y-4">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="font-medium text-charcoal-900">Seleccionar Fechas ({formData.dates.length})</h3>
-                            <div className="flex gap-2 md:hidden">
-                                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="p-1 hover:bg-charcoal-100 rounded">←</button>
-                                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="p-1 hover:bg-charcoal-100 rounded">→</button>
-                            </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {calendars.map((calendar, idx) => (
-                                <div key={idx} className={`border border-charcoal-100 rounded-xl p-4 ${idx === 1 ? 'hidden md:block' : ''}`}>
-                                    <div className="text-center font-medium mb-3 capitalize">
-                                        {calendar.date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
-                                    </div>
-                                    <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-charcoal-500">
-                                        <div>Do</div><div>Lu</div><div>Ma</div><div>Mi</div><div>Ju</div><div>Vi</div><div>Sa</div>
-                                    </div>
-                                    <div className="grid grid-cols-7 gap-1">
-                                        {calendar.days.map((date, dIdx) => {
-                                            if (!date) return <div key={dIdx} />
-
-                                            const isSelectable = isDateSelectable(date)
-                                            const isSelected = formData.dates.includes(date.toISOString().split('T')[0])
-
-                                            return (
-                                                <button
-                                                    key={dIdx}
-                                                    onClick={() => toggleDate(date)}
-                                                    disabled={!isSelectable}
-                                                    className={`
-                                                        h-7 w-7 md:h-8 md:w-8 rounded-full flex items-center justify-center text-xs md:text-sm transition-colors mx-auto
-                                                        ${isSelected ? 'bg-primary-600 text-white' : ''}
-                                                        ${!isSelected && isSelectable ? 'hover:bg-primary-50 text-charcoal-900' : ''}
-                                                        ${!isSelectable ? 'text-charcoal-300 cursor-not-allowed' : ''}
-                                                    `}
-                                                >
-                                                    {date.getDate()}
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="grid grid-cols-1 gap-6">
+                            <Calendar
+                                selectedDates={formData.dates}
+                                onDateSelect={toggleDate}
+                                isDateSelectable={isDateSelectable}
+                            />
                         </div>
 
                         {/* Available Classrooms Section */}

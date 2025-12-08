@@ -24,6 +24,23 @@ export function useReservations() {
         fetchReservations()
     }, [fetchReservations])
 
+    const getAvailableClassrooms = useCallback(async (params: any) => {
+        try {
+            return await reservationService.getAvailableClassrooms(params)
+        } catch (err: any) {
+            throw new Error(err.message || 'Error al buscar aulas disponibles')
+        }
+    }, [])
+
+    const extendReservation = useCallback(async (id: string | number, dates: string[]) => {
+        try {
+            await reservationService.extend(id, dates)
+            await fetchReservations()
+        } catch (err: any) {
+            throw new Error(err.message || 'Error al extender la reserva')
+        }
+    }, [fetchReservations])
+
     // Map to LabReservation for UI compatibility
     const formattedReservations: LabReservation[] = reservations.map(r => {
         let dateDisplay = 'Fechas variadas'
@@ -60,6 +77,8 @@ export function useReservations() {
         formattedReservations,
         isLoading,
         error,
-        refetch: fetchReservations
+        refetch: fetchReservations,
+        getAvailableClassrooms,
+        extendReservation
     }
 }

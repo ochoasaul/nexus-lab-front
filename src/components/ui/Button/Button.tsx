@@ -3,7 +3,7 @@ import type React from 'react'
 import { useMemo } from 'react'
 import { useButton } from './useButton'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
   label: string
@@ -20,6 +20,7 @@ const variantMap: Record<ButtonVariant, string> = {
   primary: 'bg-primary-600 text-white shadow-glow hover:bg-primary-500',
   secondary: 'bg-white text-charcoal-900 hover:bg-charcoal-50 border border-charcoal-100',
   ghost: 'border border-charcoal-200 text-charcoal-900 hover:border-primary-400 hover:text-primary-600',
+  danger: 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200',
 }
 
 function Button({

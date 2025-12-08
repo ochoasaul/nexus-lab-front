@@ -38,7 +38,6 @@ function OverviewPage() {
         onExitLab={handleExitLab}
       />
 
-      <QuickActions />
     </section>
   )
 }

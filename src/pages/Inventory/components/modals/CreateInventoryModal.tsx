@@ -1,7 +1,8 @@
 import { useState, FormEvent, useEffect } from 'react'
 import { Modal } from '@/components/modals/BaseModal'
 import Button from '@/components/ui/Button/Button'
-import { inventoryService, type Product, type CreateInventoryDto } from '@/services/inventoryService'
+import { type Product, type CreateInventoryDto } from '@/services/inventoryService'
+import { useInventory } from '@/hooks/useInventory'
 
 interface CreateInventoryModalProps {
   isOpen: boolean
@@ -28,6 +29,9 @@ export function CreateInventoryModal({
   const [error, setError] = useState<string | null>(null)
   const [existingInventory, setExistingInventory] = useState<{ quantity: number } | null>(null)
 
+  // Hooks
+  const { searchProduct, inventory } = useInventory(laboratoryId)
+
   useEffect(() => {
     if (!isOpen) {
       resetForm()
@@ -43,7 +47,7 @@ export function CreateInventoryModal({
     const timeout = setTimeout(async () => {
       setIsSearching(true)
       try {
-        const results = await inventoryService.searchProduct(searchQuery.trim())
+        const results = await searchProduct(searchQuery.trim())
         setSearchResults(results)
       } catch (err: any) {
         console.error('Error searching products:', err)
@@ -53,7 +57,7 @@ export function CreateInventoryModal({
     }, 400)
 
     return () => clearTimeout(timeout)
-  }, [searchQuery])
+  }, [searchQuery, searchProduct])
 
   const handleSelectProduct = async (product: Product) => {
     setSelectedProduct(product)
@@ -63,9 +67,8 @@ export function CreateInventoryModal({
     setSearchResults([])
     setSearchQuery('')
 
-    // Verificar si ya existe inventario para este producto
-    try {
-      const inventory = await inventoryService.getAll(laboratoryId)
+    // Check if inventory already exists for this product
+    if (inventory) {
       const existing = inventory.find(
         inv => inv.product_id?.toString() === product.id.toString()
       )
@@ -74,8 +77,6 @@ export function CreateInventoryModal({
       } else {
         setExistingInventory(null)
       }
-    } catch (err) {
-      console.error('Error checking existing inventory:', err)
     }
   }
 
@@ -136,7 +137,7 @@ export function CreateInventoryModal({
       size="lg"
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* Buscar producto existente */}
+        {/* Search existing product */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
             Search existing product (optional)
@@ -199,7 +200,7 @@ export function CreateInventoryModal({
           )}
         </div>
 
-        {/* Nombre del producto */}
+        {/* Product Name */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
             Product Name <span className="text-primary-600">*</span>
@@ -215,7 +216,7 @@ export function CreateInventoryModal({
           />
         </div>
 
-        {/* Descripción */}
+        {/* Description */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
             Description (optional)
@@ -230,7 +231,7 @@ export function CreateInventoryModal({
           />
         </div>
 
-        {/* Código base */}
+        {/* Base Code */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
             Base Code (optional)
@@ -245,7 +246,7 @@ export function CreateInventoryModal({
           />
         </div>
 
-        {/* Cantidad */}
+        {/* Quantity */}
         <div>
           <label className="block text-sm font-medium text-charcoal-700 mb-2">
             Quantity <span className="text-primary-600">*</span>

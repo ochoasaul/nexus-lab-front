@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import Button from '@/components/ui/Button/Button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Modal } from '@/components/modals/BaseModal'
-import { useEntradaSalida } from './useEntradaSalida'
+import { useEntryExit } from '@/hooks/useEntryExit'
 
-export function EntradaSalidaTab() {
+export function EntryExitTab() {
   const {
     schedules,
     isLoading,
@@ -17,7 +17,7 @@ export function EntradaSalidaTab() {
     handleRegistrarEntrada,
     handleRegistrarSalida,
     handleRegistrar,
-  } = useEntradaSalida()
+  } = useEntryExit()
 
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -223,8 +223,8 @@ export function EntradaSalidaTab() {
                 type="button"
                 onClick={() => setTipoRegistro('entrada')}
                 className={`rounded-2xl border px-4 py-3 text-sm font-medium transition-colors ${tipoRegistro === 'entrada'
-                    ? 'border-primary-400 bg-primary-50 text-primary-700'
-                    : 'border-charcoal-200 bg-white text-charcoal-700 hover:border-primary-200'
+                  ? 'border-primary-400 bg-primary-50 text-primary-700'
+                  : 'border-charcoal-200 bg-white text-charcoal-700 hover:border-primary-200'
                   }`}
               >
                 Entrada
@@ -233,8 +233,8 @@ export function EntradaSalidaTab() {
                 type="button"
                 onClick={() => setTipoRegistro('salida')}
                 className={`rounded-2xl border px-4 py-3 text-sm font-medium transition-colors ${tipoRegistro === 'salida'
-                    ? 'border-primary-400 bg-primary-50 text-primary-700'
-                    : 'border-charcoal-200 bg-white text-charcoal-700 hover:border-primary-200'
+                  ? 'border-primary-400 bg-primary-50 text-primary-700'
+                  : 'border-charcoal-200 bg-white text-charcoal-700 hover:border-primary-200'
                   }`}
               >
                 Salida

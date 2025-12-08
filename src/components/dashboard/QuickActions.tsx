@@ -14,7 +14,6 @@ import { useLostObjects } from '@/hooks/useLostObjects'
 import { useToastStore } from '@/store/toastStore'
 
 export function QuickActions() {
-  const { simulateInventoryAudit, simulateReservation } = useDashboard()
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
   const [isLostObjectModalOpen, setIsLostObjectModalOpen] = useState(false)
   const addToast = useToastStore((state) => state.addToast)
@@ -22,6 +21,7 @@ export function QuickActions() {
   const currentMonth = new Date().toISOString().slice(0, 7)
   const { refetch: refetchLostObjects } = useLostObjects(currentMonth)
   const { classrooms, isLoading: isLoadingClassrooms, error: classroomsError } = useClassrooms()
+
 
   const handleLostObjectSubmit = async (data: LostObjectFormData) => {
     if (!data.multimedia) {
@@ -55,6 +55,7 @@ export function QuickActions() {
   }))
 
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false)
+  const { simulateInventoryAudit, simulateReservation } = useDashboard()
 
   const handleReservationSubmit = async (data: any) => {
     try {
@@ -70,34 +71,34 @@ export function QuickActions() {
   return (
     <>
       <Panel title="Acciones rápidas">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:flex  gap-6">
           <Button
             label="Registro de Préstamos"
             variant="secondary"
             onClick={simulateInventoryAudit}
             Icon={LoanIcon}
-            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm whitespace-nowrap"
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm "
           />
           <Button
             label="Registro de Soporte"
             variant="secondary"
             onClick={() => setIsSupportModalOpen(true)}
             Icon={SupportIcon}
-            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm whitespace-nowrap"
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm "
           />
           <Button
             label="Registro de Objetos Perdidos"
             variant="secondary"
             onClick={() => setIsLostObjectModalOpen(true)}
             Icon={InventoryIcon}
-            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm whitespace-nowrap"
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm "
           />
           <Button
             label="Registro de Reservas"
             variant="secondary"
             onClick={() => setIsReservationModalOpen(true)}
             Icon={CalendarIcon}
-            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm whitespace-nowrap"
+            className="w-full hover:border-primary-500 hover:text-primary-600 transition-colors shadow-sm"
           />
         </div>
       </Panel>

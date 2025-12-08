@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { personService, type Person } from '@/services/personService'
+import { teacherService, type Teacher } from '@/services/teacherService'
 
-export function usePersonSearch() {
+export function useTeachers() {
     const [searchQuery, setSearchQuery] = useState('')
-    const [searchResults, setSearchResults] = useState<Person[]>([])
+    const [searchResults, setSearchResults] = useState<Teacher[]>([])
     const [isSearching, setIsSearching] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -16,11 +16,11 @@ export function usePersonSearch() {
         setIsSearching(true)
         setError(null)
         try {
-            const results = await personService.search(query.trim(), 1, 20)
+            const results = await teacherService.search(query.trim(), 1, 10)
             setSearchResults(results)
         } catch (err: any) {
-            console.error('Error searching persons:', err)
-            setError(err.message || 'Error searching persons')
+            console.error('Error searching teachers:', err)
+            setError(err.message || 'Error searching teachers')
             setSearchResults([])
         } finally {
             setIsSearching(false)

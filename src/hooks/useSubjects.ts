@@ -58,35 +58,46 @@ export function useSubjects() {
     setIsSubjectModalOpen(true)
   }, [])
 
-  const handleToggleSubject = useCallback(async (id: string | number) => {
-    // Optimistic update
-    setSubjects(prev =>
-      prev.map(m =>
-        m.id === id
-          ? { ...m, state: m.state === 'active' ? 'inactive' : 'active' }
-          : m
-      )
-    )
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+  const [subjectToToggle, setSubjectToToggle] = useState<SubjectTeacher | null>(null)
+  const [isToggling, setIsToggling] = useState(false)
+
+  const handleToggleSubject = useCallback((subject: SubjectTeacher) => {
+    setSubjectToToggle(subject)
+    setIsConfirmModalOpen(true)
+  }, [])
+
+  const confirmToggleSubject = useCallback(async () => {
+    if (!subjectToToggle) return
+
+    setIsToggling(true)
     try {
-      // We need to know the current state to toggle it, but here we just assume we want to toggle.
-      // Ideally we should pass the new state to the backend.
-      // For now, let's just refetch or assume backend handles toggle if we send specific data?
-      // Actually, updateAssignment endpoint takes partial data.
-      // We should find the subject first to know current state, or pass the new state.
-      const subject = subjects.find(s => s.id === id)
-      if (subject) {
-        const newState = subject.state === 'active' ? 'inactive' : 'active'
-        // Backend might not support state update yet as per my previous thought, 
-        // but let's try to send it if I added it to DTO. 
-        // I added 'state' to UpdateSubjectAssignmentDto.
-        await subjectService.update(id, { state: newState })
-      }
+      const newState = subjectToToggle.state === 'active' ? 'inactive' : 'active'
+      await subjectService.update(subjectToToggle.id, { state: newState })
+
+      // Update local state
+      setSubjects(prev =>
+        prev.map(m =>
+          m.id === subjectToToggle.id
+            ? { ...m, state: newState }
+            : m
+        )
+      )
+      addToast(`Materia ${newState === 'active' ? 'habilitada' : 'deshabilitada'} exitosamente`, 'success')
+      setIsConfirmModalOpen(false)
+      setSubjectToToggle(null)
     } catch (error) {
       console.error('Error toggling subject state:', error)
       addToast('Error al actualizar el estado', 'error')
-      fetchSubjects() // Revert on error
+    } finally {
+      setIsToggling(false)
     }
-  }, [subjects, addToast, fetchSubjects])
+  }, [subjectToToggle, addToast])
+
+  const handleCloseConfirmModal = useCallback(() => {
+    setIsConfirmModalOpen(false)
+    setSubjectToToggle(null)
+  }, [])
 
   const handleSubjectSubmit = useCallback(async (data: any) => {
     try {
@@ -132,7 +143,12 @@ export function useSubjects() {
     handleSubjectSubmit,
     handleCloseModal,
     handleFilterChange,
-    isLoading
+    isLoading,
+    isConfirmModalOpen,
+    subjectToToggle,
+    confirmToggleSubject,
+    handleCloseConfirmModal,
+    isToggling
   }
 }
 
